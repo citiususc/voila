@@ -1,0 +1,14 @@
+Package: sgpsde
+Type: Package
+Title: Estimation of SDE's Terms Using Sparse Gaussian Processes
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: Who to Author: Constantino Antonio Garcia Martinez
+Maintainer: Constantino Antonio Garcia Martinez <constantinoantonio.garcia@usc.es>
+Description: Estimation of SDE's Terms Using Sparse Gaussian Processes
+License: GPL (>= 3)
+LazyLoad: yes
+Depends: yuima, Rcpp(>= 0.12.6), methods
+LinkingTo: Rcpp, RcppArmadillo
+RcppModules: KERNELS
+RoxygenNote: 5.0.1
