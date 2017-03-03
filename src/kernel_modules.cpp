@@ -1,8 +1,21 @@
 #include <RcppArmadillo.h>
 #include "kernel.h"
 #include "common_kernels.h"
+#include "sde_variational_inferencer.h"
 
 using namespace Rcpp;
+
+void do_sde_inference(int timeSeriesIndex,
+                      const arma::mat& timeSeries,
+                      double samplingPeriod,
+                      arma::mat& xm,
+                      kernel& fKernel,
+                      kernel& sKernel, double v) {
+  // TODO: add parameters for setting algorithm parameters
+  sde_variational_inferencer sdeVI(timeSeries, samplingPeriod);
+  sdeVI.do_inference(timeSeriesIndex, xm, fKernel, sKernel, v);
+}
+
 
 RCPP_EXPOSED_CLASS(kernel);
 RCPP_EXPOSED_CLASS(exponential_kernel);
@@ -41,7 +54,7 @@ RCPP_MODULE(KERNELS){
     .derives<kernel>("gp_kernel")
     .constructor<int, double, double, arma::vec, arma::vec, double>()
   ;
-
+  function("sde_vi", &do_sde_inference);
 }
 
 

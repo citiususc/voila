@@ -21,14 +21,14 @@ public:
   void set_hyperparams(const arma::vec& hyperparams);
   arma::vec get_hyperparams() const;
   void increase_lower_bound (arma::vec& lowerBound);
-  arma::vec get_lower_bound();
+  arma::vec get_lower_bound() const;
   void decrease_upper_bound (arma::vec& upperBound);
-  arma::vec get_upper_bound();
+  arma::vec get_upper_bound() const;
   double get_epsilon() const;
   void set_epsilon(double epsilon);
-  arma::mat covmat(const arma::mat& x, const arma::mat& y);
-  arma::mat autocovmat(const arma::mat& x);
-  arma::vec variances(const arma::mat& x);
+  arma::mat covmat(const arma::mat& x, const arma::mat& y) const;
+  arma::mat autocovmat(const arma::mat& x) const;
+  arma::vec variances(const arma::mat& x) const;
   kernel sum_kernel(const kernel& ker);
   kernel multiply_kernel(const kernel& ker);
   kernel scale_kernel(double constant);
@@ -51,7 +51,7 @@ protected:
   static void check_bounds_consistency(const arma::vec& lowerBound,
                                        const arma::vec& upperBound);
   static void check_epsilon(double epsilon);
-  void check_input_dimension(int vectorDimension);
+  void check_input_dimension(int vectorDimension) const;
 
 };
 
