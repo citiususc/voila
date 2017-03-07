@@ -11,6 +11,7 @@
 #include <cassert>
 #include "problem.h"
 #include <vector>
+#include <Rcpp.h>
 
 extern "C" {
 void setulb_wrapper(int *n, int *m, double x[], double l[], double u[], int nbd[], double *f,
@@ -115,11 +116,12 @@ public:
         T lowerBound = pb.get_lower_bound();
         T upperBound = pb.get_upper_bound();
         bool hasLowerBound, hasUpperBound;
+        double maxDouble = std::numeric_limits<double>::max();
         for (int i = 0; i < n; ++i) {
             mLowerBound[i] = lowerBound[i];
             mUpperBound[i] = upperBound[i];
-            hasLowerBound = !std::isinf(mLowerBound[i]);
-            hasUpperBound = !std::isinf(mUpperBound[i]);
+            hasLowerBound = !std::isinf(mLowerBound[i]) && (mLowerBound[i] != -maxDouble);
+            hasUpperBound = !std::isinf(mUpperBound[i]) && (mUpperBound[i] != maxDouble);
             // nbd(i)=0 if x(i) is unbounded,
             // 1 if x(i) has only a lower bound,
             // 2 if x(i) has both lower and upper bounds, and
@@ -151,10 +153,27 @@ public:
         int icsave = 0;
 
         bool test = false;
+
+        //TODO:remove
+        // Rcpp::Rcout<< "C++ >> " << std::endl;
+        // for (int iii = 0; iii < n; iii++) {
+        //   Rcpp::Rcout<< x0[iii] << " ";
+        // }
+        // Rcpp::Rcout<< std::endl;
+        // for (int iii = 0; iii < n; iii++) {
+        //   Rcpp::Rcout<< mLowerBound[iii] << " ";
+        // }
+        // Rcpp::Rcout<< std::endl;
+        // for (int iii = 0; iii < n; iii++) {
+        //   Rcpp::Rcout<< mUpperBound[iii] << " ";
+        // }
+        // Rcpp::Rcout<< std::endl;
+        // Rcpp::Rcout<< "***" << std::endl;
         // TODO: translate itask using enum class to make this more readable
         while ((i < mMaximumNumberOfIterations) && (
                 (itask == 0) || (itask == 1) || (itask == 2) || (itask == 3)
         )) {
+
           setulb_wrapper(&n, &mMemorySize, &x0[0], &mLowerBound[0], &mUpperBound[0], &mNbd[0], &f,
                           &gr[0],
                          &mMachinePrecisionFactor, &mProjectedGradientTolerance,
@@ -166,6 +185,8 @@ public:
             assert(icsave <= 14 && icsave >= 0);
             assert(itask <= 12 && itask >= 0);
 
+            //Rcpp::Rcout<< "++++++ " << itask << "++++++++++" << std::endl;
+
             if (itask == 2 || itask == 3) {
                 f = pb(x0);
                 pb.gradient(x0, gr);
@@ -176,6 +197,13 @@ public:
 
             i = mIntInformation[29];
         }
+        //TODO:remove
+        // Rcpp::Rcout<< "C++ solution >> ";
+        // for (int iii = 0; iii < n; iii++) {
+        //   Rcpp::Rcout<< x0[iii] << " ";
+        // }
+        // Rcpp::Rcout<< std::endl;
+
 
     }
 

@@ -63,8 +63,28 @@ public:
       numerical_gradient(x, gr);
     };
 
-    void numerical_gradient(const T& x, T& gr, int accuracy = 0, double gridSpacing = 1e-6) {
-      gr = approximate_gradient(*this, x, accuracy, gridSpacing);
+    void numerical_gradient(const T& x, T& gr, double gridSpacing = 1e-3) {
+      gr = numerical_gradient(x, gridSpacing);
+    }
+
+    T numerical_gradient(const T& x, double gridSpacing = 1e-3) {
+      // TODO check x matches nINputDim
+      // check x is within bounds
+      T gr(x);
+      T workX(x);
+      for (int i = 0; i < mInputDimension; i++) {
+        double effectiveGridOver =
+          ((x[i] + gridSpacing) > mUpperBound[i])? mUpperBound[i] - x[i] : gridSpacing;
+        workX[i] = x[i] + effectiveGridOver;
+        double valueOver = (*this)(workX);
+        double effectiveGridBelow =
+          ((x[i] - gridSpacing) < mLowerBound[i])? x[i] - mLowerBound[i] : gridSpacing;
+        workX[i] = x[i] - effectiveGridBelow;
+        gr[i] = (valueOver - (*this)(workX)) / (effectiveGridOver + effectiveGridBelow);
+        // restore original value
+        workX[i] = x[i];
+      }
+      return gr;
     }
 
 protected:
@@ -113,7 +133,7 @@ private:
     typedef problem_base<T, problem<T> > base;
 
 protected:
-    problem() = default;
+    problem() : problem(1) {};
 
 public:
     problem(int inputDimension, const T &lowerBound, const T &upperBound) :

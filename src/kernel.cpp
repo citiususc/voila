@@ -1,10 +1,11 @@
 #include "kernel.h"
 using namespace Rcpp;
 
-kernel::kernel(): kernel(0, arma::vec(),
+//TODO
+kernel::kernel(int inputDimension): kernel(inputDimension, arma::vec({}),
                [](const arma::vec&, const arma::vec&, const arma::vec&) -> double {
                  return 0;
-               }, arma::vec(), arma::vec(), 0) {
+               }, arma::vec({}), arma::vec({}), 0) {
 }
 
 kernel::kernel(int inputDimension, const arma::vec& hyperparams,

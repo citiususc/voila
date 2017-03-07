@@ -14,4 +14,10 @@ fk = new(exp_kernel, 1, 5, 1, 1e-5)
 sk = new(exp_kernel, 1, 5, 1, 1e-5)
 feat = x[-nrow(x),,drop = FALSE]
 v = -1.5
-sde_vi(0, x , h, xm, fk, sk, v)
+tmp = microbenchmark::microbenchmark(
+  pars <- sde_vi(0, x , h, xm, fk, sk, v, 100, -1),
+  times = 5)
+print(tmp)
+print(pars)
+
+plot(pars$Ls,log="y")

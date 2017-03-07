@@ -9,7 +9,7 @@ public:
   typedef std::function<double (const arma::vec&,
                                 const arma::vec&,
                                 const arma::vec&)> kernel_expression;
-  kernel();
+  kernel(int inputDimension);
   kernel(int inputDimension, const arma::vec& hyperparams,
          const kernel_expression& expression,
          const arma::vec& lowerBound, const arma::vec& upperBound,
@@ -33,6 +33,8 @@ public:
   kernel sum_kernel(const kernel& ker);
   kernel multiply_kernel(const kernel& ker);
   kernel scale_kernel(double constant);
+
+  virtual void greet() { std::cout << "Base kernel:" << std::endl;}
 
 protected:
   int mInputDimension;
