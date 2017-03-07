@@ -6,12 +6,13 @@
 
 using namespace Rcpp;
 
-// my_func
-void my_func();
-RcppExport SEXP sgpsde_my_func() {
+// test
+int test();
+RcppExport SEXP sgpsde_test() {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    my_func();
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(test());
+    return rcpp_result_gen;
 END_RCPP
 }

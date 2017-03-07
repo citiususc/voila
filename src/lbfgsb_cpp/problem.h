@@ -1,8 +1,17 @@
+/*
+ * Copyright Constantino Antonio Garcia 2017
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef LBFGSB_ADAPTER_PROBLEM_H
 #define LBFGSB_ADAPTER_PROBLEM_H
 
 #include <array>
 #include <limits>
+#include <cmath>
+#include "numerical_gradient.h"
 
 // Use the Curiosly repeating pattern to avoid code duplication
 template<typename T, typename derived>
@@ -24,7 +33,7 @@ public:
 
     virtual ~problem_base() = default;
 
-    int getInputDimension() const {
+    int get_input_dimension() const {
         return mInputDimension;
     }
 
@@ -50,7 +59,13 @@ public:
 
     virtual double operator()(const T &x) = 0;
 
-    virtual void gradient(const T &x, T &gr) = 0;
+    virtual void gradient(const T& x, T& gr)  {
+      numerical_gradient(x, gr);
+    };
+
+    void numerical_gradient(const T& x, T& gr, int accuracy = 0, double gridSpacing = 1e-6) {
+      gr = approximate_gradient(*this, x, accuracy, gridSpacing);
+    }
 
 protected:
     int mInputDimension;
@@ -97,6 +112,9 @@ class problem : public problem_base<T, problem<T> > {
 private:
     typedef problem_base<T, problem<T> > base;
 
+protected:
+    problem() = default;
+
 public:
     problem(int inputDimension, const T &lowerBound, const T &upperBound) :
             base(inputDimension, lowerBound, upperBound) {
@@ -111,7 +129,8 @@ template<typename U, std::size_t N>
 class problem<std::array<U, N> > : public problem_base<std::array<U, N>, problem<std::array<U, N> > > {
 private:
     typedef problem_base<std::array<U, N>, problem<std::array<U, N> > > base;
-
+protected:
+    problem(): problem(N) {}
 public:
     problem(int inputDimension, const std::array<U, N> &lowerBound, const std::array<U, N> &upperBound) :
             base() {

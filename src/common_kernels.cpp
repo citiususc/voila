@@ -1,13 +1,8 @@
 #include "common_kernels.h"
+#include "utils.h"
 #include <cmath>
 #include <cassert>
 using namespace Rcpp;
-
-inline arma::vec rep_value(double value, int n) {
-  arma::vec v(n);
-  v.fill(value);
-  return v;
-}
 
 // TODO:: additional checks depending on kernel type
 // TODO:: CHANGE ASSERTS

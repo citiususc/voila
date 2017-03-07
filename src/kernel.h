@@ -9,6 +9,7 @@ public:
   typedef std::function<double (const arma::vec&,
                                 const arma::vec&,
                                 const arma::vec&)> kernel_expression;
+  kernel();
   kernel(int inputDimension, const arma::vec& hyperparams,
          const kernel_expression& expression,
          const arma::vec& lowerBound, const arma::vec& upperBound,

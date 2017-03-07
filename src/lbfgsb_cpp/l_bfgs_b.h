@@ -1,3 +1,10 @@
+/*
+ * Copyright Constantino Antonio Garcia 2017
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef L_BFGS_B_CPP_WRAPPER_H
 #define L_BFGS_B_CPP_WRAPPER_H
 
@@ -84,8 +91,19 @@ public:
         mVerboseLevel = verboseLevel;
     }
 
+    double get_gradient_scaling_factor() const {
+       return mGradientScalingFactor;
+    }
+
+    void set_gradient_scaling_factor(double gradientScalingFactor) {
+        if (gradientScalingFactor <= 0 || gradientScalingFactor > 1) {
+            throw std::invalid_argument("gradientScalingFactor should be > 0 and <= 1");
+        }
+        mGradientScalingFactor = gradientScalingFactor;
+    }
+
     void optimize(problem<T> &pb, T &x0) {
-        int n = pb.getInputDimension();
+        int n = pb.get_input_dimension();
         // prepare variables for the algorithm
         std::vector<double> mLowerBound(n);
         std::vector<double> mUpperBound(n);
@@ -124,23 +142,26 @@ public:
         // dealing with Templates
         T gr(x0);
         pb.gradient(x0, gr);
+        if (mGradientScalingFactor != 1.0) {
+            scale_gradient(gr, n);
+        }
 
         int i = 0;
         int itask = 0;
         int icsave = 0;
 
         bool test = false;
-
+        // TODO: translate itask using enum class to make this more readable
         while ((i < mMaximumNumberOfIterations) && (
                 (itask == 0) || (itask == 1) || (itask == 2) || (itask == 3)
         )) {
-            setulb_wrapper(&n, &mMemorySize, &x0[0], &mLowerBound[0], &mUpperBound[0], &mNbd[0], &f,
-                           &gr[0],
-                           &mMachinePrecisionFactor, &mProjectedGradientTolerance,
-                           &mWorkArray[0], &mIntWorkArray[0], &itask, &mVerboseLevel,
-                           &icsave, &mBoolInformation[0], &mBoolInformation[1],
-                           &mBoolInformation[2], &mBoolInformation[3],
-                           &mIntInformation[0], &mDoubleInformation[0]);
+          setulb_wrapper(&n, &mMemorySize, &x0[0], &mLowerBound[0], &mUpperBound[0], &mNbd[0], &f,
+                          &gr[0],
+                         &mMachinePrecisionFactor, &mProjectedGradientTolerance,
+                          &mWorkArray[0], &mIntWorkArray[0], &itask, &mVerboseLevel,
+                          &icsave, &mBoolInformation[0], &mBoolInformation[1],
+                          &mBoolInformation[2], &mBoolInformation[3],
+                          &mIntInformation[0], &mDoubleInformation[0]);
             // assert that impossible values do not occur
             assert(icsave <= 14 && icsave >= 0);
             assert(itask <= 12 && itask >= 0);
@@ -148,6 +169,9 @@ public:
             if (itask == 2 || itask == 3) {
                 f = pb(x0);
                 pb.gradient(x0, gr);
+                if (mGradientScalingFactor != 1.0) {
+                    scale_gradient(gr, n);
+                }
             }
 
             i = mIntInformation[29];
@@ -161,10 +185,18 @@ private:
     double mProjectedGradientTolerance;
     int mVerboseLevel;
     int mMaximumNumberOfIterations;
+    // factor <= 1 used to scale the gradient for explosive functions
+    double mGradientScalingFactor = 1.0;
     // interface to Fortran code
     bool mBoolInformation[4];
     int mIntInformation[44];
     double mDoubleInformation[29];
+
+    void scale_gradient(T& gradient, int gradientSize) {
+        for (int i = 0; i < gradientSize; i++) {
+            gradient[i] *= mGradientScalingFactor;
+        }
+    }
 
     static void check_memory_size(int memorySize) {
         if (memorySize < 1) {

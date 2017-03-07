@@ -1,6 +1,12 @@
 #include "kernel.h"
 using namespace Rcpp;
 
+kernel::kernel(): kernel(0, arma::vec(),
+               [](const arma::vec&, const arma::vec&, const arma::vec&) -> double {
+                 return 0;
+               }, arma::vec(), arma::vec(), 0) {
+}
+
 kernel::kernel(int inputDimension, const arma::vec& hyperparams,
        const std::function<double(const arma::vec&, const arma::vec&,const arma::vec&)>& expression,
        const arma::vec& lowerBound, const arma::vec& upperBound, double epsilon)
