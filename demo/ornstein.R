@@ -16,8 +16,16 @@ feat = x[-nrow(x),,drop = FALSE]
 v = -1.5
 tmp = microbenchmark::microbenchmark(
   pars <- sde_vi(0, x , h, xm, fk, sk, v, 100, -1),
-  times = 5)
+  times = 1)
 print(tmp)
 print(pars)
 
 plot(pars$Ls,log="y")
+
+# check that results have not changed since last accepted values
+oldPars = readRDS("pars.RDS")
+for (nam in names(oldPars)) {
+  testthat::expect_equal(oldPars[[nam]], pars[[nam]])
+}
+
+beepr::beep(0)

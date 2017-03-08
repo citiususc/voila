@@ -38,6 +38,9 @@ kernel::kernel(int inputDimension, const arma::vec& hyperparams,
 kernel::~kernel() {
 }
 
+int kernel::get_input_dimension() const {
+  return mInputDimension;
+}
 
 void kernel::set_hyperparams(const arma::vec& hyperparams) {
   if ((hyperparams.n_elem != mHP.n_elem)) {

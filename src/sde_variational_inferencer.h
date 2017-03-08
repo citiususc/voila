@@ -1,5 +1,6 @@
 #include <RcppArmadillo.h>
 #include <vector>
+#include <string>
 #include "kernel.h"
 #include "lbfgsb_cpp/problem.h"
 #include "lbfgsb_cpp/l_bfgs_b.h"
@@ -7,42 +8,62 @@
 
 class sde_variational_inferencer : public problem<arma::vec> {
 public:
-  sde_variational_inferencer(const arma::mat& timeSeries, double samplingPeriod);
+  sde_variational_inferencer(kernel& fKernel, kernel& sKernel, double v);
+
+  sde_variational_inferencer(kernel& fKernel, kernel& sKernel, double v,
+                             l_bfgs_b<arma::vec>& laplaceSolver,
+                             l_bfgs_b<arma::vec>& lowerBoundSolver);
+
   ~sde_variational_inferencer() = default;
-  // TODO: getters and setters for the algorithm parameters
-  void set_verbose_level(int verboseLevel);
+
+  bool get_verbose() const;
+
+  void set_verbose(bool verbose);
+
+  int get_max_iterations() const;
+
   void set_max_iterations(int maxIt);
-// TODO :change
-  Rcpp::List do_inference(int targetIndex, arma::mat& xm, kernel& fKernel,
-                    kernel& sKernel, double v);
+
+  double get_rel_tolerance() const;
+
+  void set_rel_tolerance(double relTolerance);
+
+  Rcpp::List do_inference(const arma::mat& timeSeries, double samplingPeriod,
+                          arma::mat& xm, int targetIndex = 0);
+
   double operator()(const arma::vec& x);
-  double get_lower_bound(double v) const;
+
+  double get_lower_bound() const;
+
 private:
   // the time series
-  arma::mat mX;
-  // all rows of mX except the last one... TODO:: this is highly redundant
+  double mSamplingPeriod;
   arma::mat mHeadX;
   // derivative of the time series
   arma::mat mDX;
+  // mTarget holds the concrete dimension of mDX for which we are trying to fit
+  // the dynamical terms.
+  arma::vec mTarget;
   int mDXSize;
   // Parameters controlling the algorithm
-  double mSamplingPeriod;
   int mMaxIt = 20;
-  int mHpIt = 5;
   bool mVerbose = true;
   double mRelativeTolerance = 1e-5;
+  // kernels
+  kernel& mFKernel;
+  kernel& mSKernel;
+  // solvers
+  l_bfgs_b<arma::vec> mLaplaceSolver;
+  l_bfgs_b<arma::vec> mLowerBoundSolver;
   // results of the inference
   std::vector<double> mLikelihoodLowerBounds;
   arma::vec mPosteriorFMean;
   arma::mat mPosteriorFCov;
   arma::vec mPosteriorSMean;
   arma::mat mPosteriorSCov;
+  double mV;
+  arma::mat mXm;
   // auxiliar variables
-  l_bfgs_b<arma::vec> mSolver;
-  int mVerboseHp = 0;
-  kernel mFKernel;
-  kernel mSKernel;
-  arma::vec mTarget;
   int mNoPseudoInputs;
   int mNoFHyperparameters;
   int mNoSHyperparameters;
@@ -57,65 +78,56 @@ private:
   arma::mat mB;
   arma::vec mHii;
   // methods
+  arma::vec zip_hyperparameters() const;
+
+  void unzip_hyperparameters(const arma::vec& hp);
 
   static double get_lower_bound(const arma::vec& dxTarget, double samplingPeriod,
-                         const arma::vec& fMean, const arma::mat& fCov,
-                         const arma::mat& A, const arma::vec& Qii,
-                         const arma::mat& kmmInv, double v,
-                         const arma::vec& sMean, const arma::mat& sCov,
-                         const arma::mat& B, const arma::vec& Hii,
-                         const arma::mat& jmmInv);
+                                const arma::vec& fMean, const arma::mat& fCov,
+                                const arma::mat& A, const arma::vec& Qii,
+                                const arma::mat& kmmInv, double v,
+                                const arma::vec& sMean, const arma::mat& sCov,
+                                const arma::mat& B, const arma::vec& Hii,
+                                const arma::mat& jmmInv);
 
-  arma::vec calculate_E_vector(double v) const;
+  arma::vec calculate_E_vector() const;
 
   static arma::colvec calculate_E_vector(double v,
-                                  const arma::vec& sMean,
-                                  const arma::mat& sCov,
-                                  const arma::mat& B,
-                                  const arma::vec& Hii);
+                                         const arma::vec& sMean,
+                                         const arma::mat& sCov,
+                                         const arma::mat& B,
+                                         const arma::vec& Hii);
 
   arma::vec calculate_ksi_vector() const;
 
   static arma::colvec calculate_ksi_vector(const arma::vec& dxTarget, double samplingPeriod,
-                                    const arma::vec& fMean, const arma::mat& fCov,
-                                    const arma::mat& A, const arma::vec& Qii);
+                                           const arma::vec& fMean, const arma::mat& fCov,
+                                           const arma::mat& A, const arma::vec& Qii);
 
-  void update_distributions(double v);
+  void update_distributions();
 
-  void calculate_model_matrices(const arma::mat& xm);
+  void calculate_model_matrices();
 
   static void calculate_kernel_matrices(const arma::mat& headX,
-                                 const kernel& ker,const arma::mat& xm,
-                                 arma::mat& kmm, arma::mat& kmmInv,
-                                 arma::mat& knm, arma::mat& A, arma::vec& Qii);
-
-  class laplace_objective_function : public problem<arma::vec> {
-  public:
-    laplace_objective_function(int m,
-                               const arma::vec& cVector,  double v,
-                               const sde_variational_inferencer& inferencer
-                               )
-      : problem(m), mInferencer(inferencer), mCVector(cVector), mV(v) {
-    }
-
-    double operator() (const arma::vec& x) {
-      arma::colvec meanMinusV(x.n_elem);
-      std::transform(x.begin(), x.end(), meanMinusV.begin(),
-                     bind2nd(std::plus<double>(), -mV));
-      arma::vec tmp = mInferencer.mB * meanMinusV;
-      return -0.5 * (
-          -1.0 / mInferencer.mSamplingPeriod * arma::dot(mCVector, arma::exp(-tmp)) -
-            arma::accu(tmp) - arma::dot(meanMinusV, mInferencer.mJmmInv * meanMinusV));
-    }
-
-  private:
-    arma::vec mCVector;
-    double mV;
-    const sde_variational_inferencer& mInferencer;
-  };
-
+                                        const kernel& ker,const arma::mat& xm,
+                                        arma::mat& kmm, arma::mat& kmmInv,
+                                        arma::mat& knm, arma::mat& A, arma::vec& Qii);
 
   void distributions_update_message(int nIt);
 
   void hyperparameters_optimization_message(int nIt);
+
+  // A one-line print of arma::vec (instead of the column like << arma::vec
+  void print_vector(const arma::vec& x, const std::string& preface = "");
+
+  class laplace_objective_function : public problem<arma::vec> {
+  public:
+    laplace_objective_function(const arma::vec& cvector,
+                               const sde_variational_inferencer& inferencer);
+    double operator() (const arma::vec& x);
+  private:
+    const arma::vec& mCVector;
+    const sde_variational_inferencer& mInferencer;
+  };
+
 };

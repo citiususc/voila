@@ -13,10 +13,9 @@ List do_sde_inference(int timeSeriesIndex,
                       kernel& sKernel, double v,
                       int maxIterations = 20, int verboseLevel = 1) {
   // TODO: add parameters for setting algorithm parameters
-  sde_variational_inferencer sdeVI(timeSeries, samplingPeriod);
+  sde_variational_inferencer sdeVI(fKernel, sKernel, v);
   sdeVI.set_max_iterations(maxIterations);
-  sdeVI.set_verbose_level(verboseLevel);
-  return sdeVI.do_inference(timeSeriesIndex, xm, fKernel, sKernel, v);
+  return sdeVI.do_inference(timeSeries, samplingPeriod, xm, timeSeriesIndex);
 
 }
 

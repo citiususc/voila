@@ -19,6 +19,7 @@ public:
          const kernel_expression& expression,
          double epsilon);
   virtual ~kernel();
+  int get_input_dimension() const;
   void set_hyperparams(const arma::vec& hyperparams);
   arma::vec get_hyperparams() const;
   void increase_lower_bound (arma::vec& lowerBound);
