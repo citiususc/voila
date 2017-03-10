@@ -16,9 +16,7 @@ List do_sde_inference(int timeSeriesIndex,
   sde_variational_inferencer sdeVI(fKernel, sKernel, v);
   sdeVI.set_max_iterations(maxIterations);
   return sdeVI.do_inference(timeSeries, samplingPeriod, xm, timeSeriesIndex);
-
 }
-
 
 RCPP_EXPOSED_CLASS(kernel);
 RCPP_EXPOSED_CLASS(exponential_kernel);

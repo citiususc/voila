@@ -6,15 +6,6 @@
 
 using namespace Rcpp;
 
-// my_func
-void my_func();
-RcppExport SEXP sgpsde_my_func() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    my_func();
-    return R_NilValue;
-END_RCPP
-}
 // mv
 arma::mat mv(arma::vec& x, int nrow, int ncol);
 RcppExport SEXP sgpsde_mv(SEXP xSEXP, SEXP nrowSEXP, SEXP ncolSEXP) {
