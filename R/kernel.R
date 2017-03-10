@@ -1,7 +1,12 @@
 
 # modify to add new kernels ----------------------------------------------------
 kSgpsdeValidKernels = c("exp_kernel", "rq_kernel",
-                 "sum_exp_kernels", "exp_const_kernel")
+                        "sum_exp_kernels", "exp_const_kernel")
+
+is_valid_kernel_pointer = function(kernel) {
+  any(sapply(paste0("Rcpp_", kSgpsdeValidKernels),
+        FUN = inherits, x = kernel))
+}
 
 create_kernel_pointer = function(obj, ...) {
   UseMethod("create_kernel_pointer", obj)
@@ -74,7 +79,6 @@ create_kernel_attributes = function(type, parameters, inputDimension, epsilon) {
 
 # end of required modifications for new kernels --------------------------------
 
-
 #' @export
 sde_kernel = function(type = c("exp_kernel", "rq_kernel",
                                "sum_exp_kernels", "exp_const_kernel"),
@@ -105,10 +109,11 @@ create_kernel_pointer.sde_kernel = function(kernel) {
   parameters = kernel
   parameters = c(parameters, kernel$hyperparams)
 
-  create_kernel_pointer.default(attr(k, 'type'), parameters,
+  create_kernel_pointer.default(attr(kernel, 'type'), parameters,
                                 kernel$inputDimension, kernel$epsilon,
                                 kernel$lowerBound, kernel$upperBound)
 }
+
 
 #' @export
 autocovmat = function(kernel, x) {
@@ -121,6 +126,14 @@ autocovmat.sde_kernel = function(kernel, x) {
   kernelPointer$autocovmat(x)
 }
 
+#' @export
+autocovmat.default = function(kernel, x) {
+  # use default function to join in a single entry all the kernel pointers
+  if (!is_valid_kernel_pointer(kernel)) {
+    stop("A C++ kernel pointer was expected")
+  }
+  kernel$autocovmat(x)
+}
 
 #' @export
 covmat = function(kernel, x, y) {
@@ -135,6 +148,16 @@ covmat.sde_kernel = function(kernel, x, y) {
 }
 
 #' @export
+covmat.default = function(kernel, x, y) {
+  # use default function to join in a single entry all the kernel pointers
+  if (!is_valid_kernel_pointer(kernel)) {
+    stop("A C++ kernel pointer was expected")
+  }
+  kernel$covmat(x, y)
+}
+
+
+#' @export
 vars = function(kernel, x) {
   UseMethod("vars", kernel)
 }
@@ -143,6 +166,15 @@ vars = function(kernel, x) {
 vars.sde_kernel = function(kernel, x) {
   kernelPointer = create_kernel_pointer(kernel)
   kernelPointer$vars(x)
+}
+
+#' @export
+vars.default = function(kernel, x) {
+  # use default function to join in a single entry all the kernel pointers
+  if (!is_valid_kernel_pointer(kernel)) {
+    stop("A C++ kernel pointer was expected")
+  }
+  kernel$vars(x)
 }
 
 
@@ -218,3 +250,7 @@ arrange_hyperparams_list = function(kernel, hyperparams) {
   }
   hyperparams[names(kernel$hyperparams)]
 }
+
+
+
+
