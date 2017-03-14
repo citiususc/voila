@@ -20,6 +20,10 @@ public:
 
     void set_verbose(bool verbose);
 
+    int get_hyperparams_iterations() const;
+
+    void set_hyperparams_iterations(int hyperparamsIterations);
+
     int get_max_iterations() const;
 
     void set_max_iterations(int maxIt);

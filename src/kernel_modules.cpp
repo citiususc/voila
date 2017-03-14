@@ -11,10 +11,13 @@ List do_sde_inference(int timeSeriesIndex,
                       arma::mat& xm,
                       kernel& fKernel,
                       kernel& sKernel, double v,
-                      int maxIterations = 20, int verboseLevel = 1) {
+                      int maxIterations = 20, int hyperparamsIterations = 5,
+                      double relTol = 1e-5) {
   // TODO: add parameters for setting algorithm parameters
   sde_variational_inferencer sdeVI(fKernel, sKernel, v);
   sdeVI.set_max_iterations(maxIterations);
+  sdeVI.set_hyperparams_iterations(hyperparamsIterations);
+  sdeVI.set_rel_tolerance(relTol);
   return sdeVI.do_inference(timeSeries, samplingPeriod, xm, timeSeriesIndex);
 }
 
@@ -55,7 +58,7 @@ RCPP_MODULE(KERNELS){
     .derives<kernel>("gp_kernel")
     .constructor<int, double, double, arma::vec, arma::vec, double>()
   ;
-  function("sde_vi", &do_sde_inference);
+  function("do_sde_inference", &do_sde_inference);
 }
 
 

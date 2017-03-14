@@ -206,6 +206,16 @@ set_hyperparams.sde_kernel = function(kernel, hyperparams) {
   kernel
 }
 
+#' @export
+set_hyperparams.default = function(kernel, hyperparams) {
+  # use default function to join in a single entry all the kernel pointers
+  if (!is_valid_kernel_pointer(kernel)) {
+    stop("A C++ kernel pointer was expected")
+  }
+  kernel$set_hyperparams(hyperparams)
+  kernel
+}
+
 
 #' @export
 decrease_upper_bound = function(kernel, upperBound) {

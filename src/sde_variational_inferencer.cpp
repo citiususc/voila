@@ -34,6 +34,18 @@ sde_variational_inferencer::sde_variational_inferencer(kernel& driftKernel,
               mLowerBoundSolver(lowerBoundSolver) {
 }
 
+int sde_variational_inferencer::get_hyperparams_iterations() const {
+  return mLowerBoundSolver.get_max_iterations();
+}
+
+void sde_variational_inferencer::set_hyperparams_iterations(int hyperparamsIterations) {
+  if (hyperparamsIterations <= 0) {
+    throw std::invalid_argument("The maximum number of iterations should be > 0");
+  }
+  mLowerBoundSolver.set_max_iterations(hyperparamsIterations);
+}
+
+
 int sde_variational_inferencer::get_max_iterations() const {
   return mMaxIt;
 }
