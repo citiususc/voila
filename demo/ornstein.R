@@ -2,7 +2,7 @@ library("sgpsde")
 
 # simulate Ornstein-Uhlenbeck time series ---------------------------------
 h = 0.001
-set.seed(1)
+#set.seed(1)
 model = suppressWarnings(setModel(drift = "-x",
                                   diffusion = "sqrt(2)"))
 X = suppressWarnings(simulate(model,
