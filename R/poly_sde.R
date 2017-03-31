@@ -69,5 +69,5 @@ predict.poly_sde = function(obj, newX) {
     newX = as.data.frame(predict(obj$polyModel, newX))
     colnames(newX) = paste0("c", 1:obj$polyOrder)
   }
-  predict(obj$fit, newdata = data.frame(x = newX))
+  predict(obj$fit, newdata = newX)
 }

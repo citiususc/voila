@@ -58,6 +58,18 @@ private:
 };
 
 
+// a non-stationary kernel
+class clamped_exponential_linear_kernel: public kernel {
+public:
+  clamped_exponential_linear_kernel(int inputDimension,
+                                    double completeAmplitude,
+                                    double linAmplitude,
+                                    double linCenter,
+                                    const arma::vec& lengthScales,
+                                    double epsilon);
+private:
+  static kernel::kernel_expression generate_expression(double completeAmplitude);
+};
 
 
 #endif

@@ -1,7 +1,7 @@
 
 # modify to add new kernels ----------------------------------------------------
 kSgpsdeValidKernels = c("exp_kernel", "rq_kernel",
-                        "sum_exp_kernels", "exp_const_kernel")
+                        "sum_exp_kernels", "exp_const_kernel", "clamped_exp_lin_kernel")
 
 is_valid_kernel_pointer = function(kernel) {
   any(sapply(paste0("Rcpp_", kSgpsdeValidKernels),
@@ -16,11 +16,16 @@ kSgpsdeRequiredParameters = list(
   'exp_kernel' = c('amplitude','lengthScales'),
   'rq_kernel' = c('amplitude', 'alpha', 'lengthScales'),
   'sum_exp_kernels' = c('maxAmplitude','amplitude1', 'lengthScales1', 'lengthScales2'),
-  'exp_const_kernel' = c('maxAmplitude', 'expAmplitude', 'lengthScales')
+  'exp_const_kernel' = c('maxAmplitude', 'expAmplitude', 'lengthScales'),
+  'clamped_exp_lin_kernel' = c('maxAmplitude', 'linAmplitude', 'linCenter', 'lengthScales')
 )
 
 create_kernel_pointer.default = function(type, parameters, inputDimension, epsilon,
                                          lowerBound = NULL, upperBound = NULL) {
+  # correct a typical mistake
+  if ('scaleLengths' %in% names(parameters)) {
+    parameters$lengthScales = parameters$scaleLengths
+  }
   kernel = switch(
     type,
     'exp_kernel' = new(exp_kernel, inputDimension, parameters$amplitude,
@@ -32,7 +37,12 @@ create_kernel_pointer.default = function(type, parameters, inputDimension, epsil
                             parameters$lengthScales2, epsilon),
     'exp_const_kernel' = new(exp_const_kernel, inputDimension, parameters$maxAmplitude,
                              parameters$expAmplitude, parameters$lengthScales,
-                             epsilon)
+                             epsilon),
+    'clamped_exp_lin_kernel' = new(clamped_exp_lin_kernel, inputDimension,
+                                   parameters$maxAmplitude,
+                                   parameters$linAmplitude, parameters$linCenter,
+                                   parameters$lengthScales,
+                                   epsilon)
   )
   if (!is.null(lowerBound)) {
     kernel$increase_lower_bound(as.numeric(lowerBound))
@@ -47,6 +57,7 @@ create_kernel_attributes = function(type, parameters, inputDimension, epsilon) {
   # common to all kernels
   kernelAttributes = list(inputDimension = inputDimension, epsilon = epsilon)
 
+  # the attributes MUST appear in the order used by the cpp constructor
   switch(
     type,
     'exp_kernel' =  {
@@ -68,20 +79,26 @@ create_kernel_attributes = function(type, parameters, inputDimension, epsilon) {
       kernelAttributes
     },
     'exp_const_kernel' = {
-      kernelAttributes$amplitude = parameters$maxAmplitude
+      kernelAttributes$maxAmplitude = parameters$maxAmplitude
       kernelAttributes$hyperparams = list(expAmplitude = parameters$expAmplitude,
+                                          lengthScales = parameters$lengthScales)
+      kernelAttributes
+    },
+    'clamped_exp_lin_kernel' = {
+      kernelAttributes$maxAmplitude = parameters$maxAmplitude
+      kernelAttributes$hyperparams = list(linAmplitude = parameters$linAmplitude,
+                                          linCenter = parameters$linCenter,
                                           lengthScales = parameters$lengthScales)
       kernelAttributes
     })
 }
 
 # TODO: ADD ALSO TO THE TYPE ARGUMENT IN THE SDE_KERNEL FUNCTION
-
 # end of required modifications for new kernels --------------------------------
 
 #' @export
-sde_kernel = function(type = c("exp_kernel", "rq_kernel",
-                               "sum_exp_kernels", "exp_const_kernel"),
+sde_kernel = function(type = c("exp_kernel", "rq_kernel", "sum_exp_kernels",
+                               "exp_const_kernel", "clamped_exp_lin_kernel"),
                       parameters, inputDimension = 1, epsilon = 0) {
 
   type = match.arg(type)
@@ -95,8 +112,8 @@ sde_kernel = function(type = c("exp_kernel", "rq_kernel",
   junk = create_kernel_pointer(type, parameters, inputDimension, epsilon)
 
   kernelAttr = create_kernel_attributes(type, parameters, inputDimension, epsilon)
-  kernelAttr$lowerBound = list(as.numeric(junk$get_lower_bound()))
-  kernelAttr$upperBound = list(as.numeric(junk$get_upper_bound()))
+  kernelAttr$lowerBound = lapply(junk$get_lower_bound(), function(x) x)
+  kernelAttr$upperBound = lapply(junk$get_upper_bound(), function(x) x)
   names(kernelAttr$upperBound) = names(kernelAttr$lowerBound) = names(kernelAttr$hyperparams)
 
   attr(kernelAttr, 'type') = type
@@ -180,7 +197,7 @@ vars.default = function(kernel, x) {
 
 #' @export
 get_hyperparams = function(kernel, x) {
-  UseMethod("set_hyperparams", kernel)
+  UseMethod("get_hyperparams", kernel)
 }
 
 #' @export
@@ -196,7 +213,22 @@ set_hyperparams = function(kernel, x) {
 
 #' @export
 set_hyperparams.sde_kernel = function(kernel, hyperparams) {
-  hyperparams = arrange_hyperparams_list(kernel, hyperparams)
+  if (is.list(hyperparams)) {
+    hyperparams = arrange_hyperparams_list(kernel, hyperparams)
+  } else {
+    # hyperparams is a vector: we assume default order.
+    # get name and sizes of the hyperparams
+    oldHp = get_hyperparams(kernel)
+    hpNames = names(oldHp)
+    hpDims = sapply(oldHp, length)
+    begin = c(1, head(cumsum(hpDims), -1) + 1)
+    end = begin + hpDims - 1
+    hyperparamsList = list()
+    for (i in seq_along(hpNames)) {
+     hyperparamsList[[ hpNames[i] ]] = hyperparams[ begin[i]:end[i] ]
+    }
+    hyperparams = hyperparamsList
+  }
   # avoid replication of code using the hyperparameters' checks included in
   # C++ code
   kernelPointer = create_kernel_pointer(kernel)
@@ -212,7 +244,7 @@ set_hyperparams.default = function(kernel, hyperparams) {
   if (!is_valid_kernel_pointer(kernel)) {
     stop("A C++ kernel pointer was expected")
   }
-  kernel$set_hyperparams(hyperparams)
+  kernel$set_hyperparams(as.numeric(hyperparams))
   kernel
 }
 

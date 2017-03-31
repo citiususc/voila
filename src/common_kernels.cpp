@@ -13,18 +13,18 @@ exponential_kernel::exponential_kernel(int inputDimension,
                                        const arma::vec& lengthScales,
                                        double epsilon)
   : kernel( (check_length_scales_dims(inputDimension, lengthScales), inputDimension),
-             lengthScales,
-             exponential_kernel::generate_exponential_kernel(amplitude), epsilon)  {
+    lengthScales,
+    exponential_kernel::generate_exponential_kernel(amplitude), epsilon)  {
 }
 
 kernel::kernel_expression exponential_kernel::generate_exponential_kernel(double amplitude) {
   kernel::kernel_expression exponential =
     [amplitude](const arma::vec& x, const arma::vec&y,
-       const arma::vec& hyperparams) -> double {
-         return amplitude *
-           std::exp(- arma::accu( arma::square((x - y) / hyperparams) ) / 2.0);
-       };
-  return exponential;
+                const arma::vec& hyperparams) -> double {
+                  return amplitude *
+                    std::exp(- arma::accu( arma::square((x - y) / hyperparams) ) / 2.0);
+                };
+    return exponential;
 }
 
 
@@ -35,21 +35,21 @@ rational_quadratic_kernel::rational_quadratic_kernel(int inputDimension,
                                                      double lengthScale,
                                                      double epsilon)
   : kernel(inputDimension,
-           arma::vec({alpha, lengthScale}),
-           rational_quadratic_kernel::generate_rational_quadratic_kernel(amplitude),
-           epsilon)  {
-  }
+    arma::vec({alpha, lengthScale}),
+    rational_quadratic_kernel::generate_rational_quadratic_kernel(amplitude),
+    epsilon)  {
+}
 
 kernel::kernel_expression rational_quadratic_kernel::generate_rational_quadratic_kernel(double amplitude) {
   kernel::kernel_expression rational_quadratic =
     [amplitude](const arma::vec& x, const arma::vec&y,
-       const arma::vec& hyperparams) -> double {
-         return amplitude *
-           std::pow(1 + std::pow(arma::norm(x - y),2) /
-           (2 * hyperparams(0) * hyperparams(1) *  hyperparams(1) ),
-           -hyperparams(0));
-       };
-  return rational_quadratic;
+                const arma::vec& hyperparams) -> double {
+                  return amplitude *
+                    std::pow(1 + std::pow(arma::norm(x - y),2) /
+                               (2 * hyperparams(0) * hyperparams(1) *  hyperparams(1) ),
+                               -hyperparams(0));
+                };
+    return rational_quadratic;
 }
 
 sum_exponential_kernels::sum_exponential_kernels(int inputDimension,
@@ -76,7 +76,7 @@ kernel::kernel_expression sum_exponential_kernels::generate_sum_exponential_kern
                   int n = x.n_elem;
                   return hyperparams(0) *
                     std::exp(- arma::accu( arma::square((x - y) / hyperparams.subvec(1, n)) ) / 2.0) +
-                         (amplitude - hyperparams(0)) *
+                    (amplitude - hyperparams(0)) *
                     std::exp(- arma::accu( arma::square((x - y) / hyperparams.subvec(n + 1, hyperparams.n_elem - 1)) ) / 2.0);
                 };
     return exponential;
@@ -115,4 +115,33 @@ kernel::kernel_expression exponential_constant_kernel::generate_expression(doubl
 
 
 
+/******/
+clamped_exponential_linear_kernel::clamped_exponential_linear_kernel(int inputDimension,
+                                                                     double completeAmplitude,
+                                                                     double linAmplitude,
+                                                                     double linCenter,
+                                                                     const arma::vec& lengthScales,
+                                                                     double epsilon)
+  : kernel( (check_length_scales_dims(inputDimension, lengthScales),inputDimension) ,
+    arma::join_cols(arma::vec({linAmplitude, linCenter}), lengthScales),
+                    clamped_exponential_linear_kernel::generate_expression(completeAmplitude),
+                    arma::join_cols(arma::vec({0, -std::numeric_limits<double>::max()}), rep_value(0, inputDimension)),
+                    rep_value(std::numeric_limits<double>::max(), 2 + inputDimension),
+                    epsilon)  {
+}
 
+
+kernel::kernel_expression clamped_exponential_linear_kernel::generate_expression(double completeAmplitude){
+  kernel::kernel_expression ke =
+    [completeAmplitude](const arma::vec& x, const arma::vec&y,  const arma::vec& hyperparams) -> double {
+      double linProd = hyperparams(0) * arma::dot(x - hyperparams(1),y - hyperparams(1));
+      if (linProd > completeAmplitude) {
+        return completeAmplitude;
+      } else {
+        return (completeAmplitude - linProd) * std::exp(-arma::accu(
+              arma::square((x - y) / hyperparams.subvec(2, hyperparams.n_elem - 1))
+        ) / 2.0) + linProd;
+      }
+    };
+    return ke;
+}

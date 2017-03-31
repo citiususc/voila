@@ -273,7 +273,6 @@ void kernel::sanitize_hyperparams(const arma::vec& hyperparams,
 void kernel::check_hyperparameters_within_bounds(const arma::vec& hyperparams,
                                                  const arma::vec& lowerBound,
                                                  const arma::vec& upperBound) {
-
   if (arma::any(hyperparams > upperBound) || (arma::any(hyperparams < lowerBound))) {
     throw std::invalid_argument("The hyperparameters are not contained within \
                                  [lowerBound, upperBound]");

@@ -26,6 +26,7 @@ RCPP_EXPOSED_CLASS(exponential_kernel);
 RCPP_EXPOSED_CLASS(rational_quadratic_kernel);
 RCPP_EXPOSED_CLASS(exponential_constant_kernel);
 RCPP_EXPOSED_CLASS(sum_exponential_kernels);
+RCPP_EXPOSED_CLASS(exponential_linear_kernel);
 
 RCPP_MODULE(KERNELS){
   class_<kernel>("gp_kernel")
@@ -58,6 +59,9 @@ RCPP_MODULE(KERNELS){
     .derives<kernel>("gp_kernel")
     .constructor<int, double, double, arma::vec, arma::vec, double>()
   ;
+  class_<clamped_exponential_linear_kernel>("clamped_exp_lin_kernel")
+    .derives<kernel>("gp_kernel")
+    .constructor<int, double, double, double, arma::vec, double>();
   function("do_sde_inference", &do_sde_inference);
 }
 

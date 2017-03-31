@@ -22,7 +22,7 @@ fk = new(exp_kernel, 1, uncertainty, 1, 1e-5)
 sk = new(exp_kernel, 1, diffParams$kernelAmplitude, 1, 1e-5)
 
 
-inferenceResults = sde_vi(targetIndex, x, h, xm, fk, sk, v, 100, relTol = 1e-6)
+inferenceResults = sde_vi(targetIndex, x, h, xm, fk, sk, v, 10, relTol = 1e-3)
 
 
 # check results -----------------------------------------------------------

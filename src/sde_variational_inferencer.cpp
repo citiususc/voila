@@ -115,6 +115,9 @@ Rcpp::List sde_variational_inferencer::do_inference(const arma::mat& timeSeries,
   mLowerBound = arma::vec(mInputDimension);
   mUpperBound = arma::vec(mInputDimension);
   double limitValue = std::numeric_limits<double>::max();
+  // avoid consistency problems when trying to set the new parameters
+  mLowerBound.fill(-limitValue);
+  mUpperBound.fill(limitValue);
 
   set_lower_bound(
     arma::join_cols(arma::join_cols(mDriftKernel.get_lower_bound(),
@@ -155,6 +158,10 @@ Rcpp::List sde_variational_inferencer::do_inference(const arma::mat& timeSeries,
     }
     // optimize hyperparams
     arma::vec hp = zip_hyperparameters();
+    //print_vector(hp, "HP: ");
+    //print_vector(mLowerBound, "LB: ");
+    //print_vector(mUpperBound, "UB: ");
+
     mLowerBoundSolver.optimize(*this, hp);
     unzip_hyperparameters(hp);
     calculate_model_matrices();
