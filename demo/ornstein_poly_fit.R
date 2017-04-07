@@ -6,11 +6,11 @@ h = 0.001
 model = suppressWarnings(setModel(drift = "-x",
                                   diffusion = "sqrt(2)"))
 X = suppressWarnings(simulate(model,
-                              sampling = setSampling(delta = h, n = 10000)))
+                              sampling = setSampling(delta = h, n = 20000)))
 x = as.matrix(get.zoo.data(X)[[1]], ncol = 1)
 plot.ts(x)
 # poly fit  ----------------------------------------------------------
-pf = fit_polynomial_sde(x, h, nDrift = 0, nDiff = 3)
+pf = fit_polynomial_sde(x, h, nDrift = 3, nDiff = 5)
 
 supportX = seq(min(x), max(x), len = 100)
 f = predict(pf$drift, supportX)

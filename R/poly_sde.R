@@ -37,7 +37,7 @@ fit_polynomial_sde <- function(timeSeries, samplingPeriod = NULL,
     driftFit = lm(formula(driftFit), data)
   } else {
     data = data.frame('y' = dtimeSeries / dtime)
-    driftFit = lm(y ~ ., data = data)
+    driftFit = lm(y ~ 1, data = data)
     driftPoly = NULL
   }
   e = (diff(timeSeries) - driftFit$fitted.values * dtime) ^ 2 / dtime
@@ -52,13 +52,15 @@ fit_polynomial_sde <- function(timeSeries, samplingPeriod = NULL,
     diffFit = lm(formula(diffFit), data)
   } else {
     data = data.frame('y' = e)
-    diffFit = lm(y ~ ., data = data)
+    diffFit = lm(y ~ 1, data = data)
     diffPoly = NULL
   }
   driftResult = list(fit = driftFit, polyModel = driftPoly, polyOrder = nDrift)
   class(driftResult) = "poly_sde"
+  attr(driftResult, "type") = "drift"
   diffResult = list(fit = diffFit, polyModel = diffPoly, polyOrder = nDiff)
   class(diffResult) = "poly_sde"
+  attr(diffResult, "type") = "diffusion"
   list(drift = driftResult, diff = diffResult)
 }
 
@@ -68,6 +70,8 @@ predict.poly_sde = function(obj, newX) {
   if (!is.null(obj$polyModel)) {
     newX = as.data.frame(predict(obj$polyModel, newX))
     colnames(newX) = paste0("c", 1:obj$polyOrder)
+  } else {
+    newX = as.data.frame(newX)
   }
   predict(obj$fit, newdata = newX)
 }
