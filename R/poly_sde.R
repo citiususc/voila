@@ -13,6 +13,7 @@ fit_polynomial_sde <- function(timeSeries, samplingPeriod = NULL,
   }
   if (is.null(samplingPeriod) && is.null(timeTs)) {
     stop("samplingPeriod or timeTs should be specified")
+
   }
   N = length(timeSeries)
   dtimeSeries = diff(timeSeries)
