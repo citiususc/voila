@@ -163,24 +163,44 @@ select_best_bandwidth =
     }
     deltaError = zoo::zoo(errors, bws)
     meanBwGrid = mean(diff(sort(bwGrid)))
-    deltaError = zoo::rollapply(deltaError,
-                                width = max(2, errorBw / meanBwGrid),
-                                function(x) mean(x, na.rm = TRUE))
+    width = max(2, errorBw / meanBwGrid)
+    if (width < length(deltaError)) {
+      deltaError = zoo::rollapply(deltaError,
+                                  width = width,
+                                  function(x) mean(x, na.rm = TRUE))
+    } else {
+      warning("Not enough points for smoothing the delta-errors...Skipping")
+    }
     if (all(is.na(deltaError))) {
       stop("All errors are unavailable. Could not find best model")
     }
     # best model is the one with local minima
     bestIndex = which_local_minima(deltaError)
-    bestIndex =
-      switch(solveTies,
-             "minVal" = bestIndex[which.min(deltaError[bestIndex])],
-             "maxVal" = bestIndex[which.max(deltaError[bestIndex])],
-             "minArg" = bestIndex[which.min(time(deltaError)[bestIndex])],
-             "maxArg" = bestIndex[which.max(time(deltaError)[bestIndex])],
-             "maxDrop" = {
-               bestIndex[which.min(c(NA, diff(deltaError))[bestIndex])]
-             },
-             "na" = bestIndex)
+    if (length(bestIndex) > 1) {
+      bestIndex =
+        switch(solveTies,
+               "minVal" = bestIndex[which.min(deltaError[bestIndex])],
+               "maxVal" = bestIndex[which.max(deltaError[bestIndex])],
+               "minArg" = bestIndex[which.min(time(deltaError)[bestIndex])],
+               "maxArg" = bestIndex[which.max(time(deltaError)[bestIndex])],
+               "maxDrop" = {
+                 diffError = diff(deltaError)
+                 diffError = c(diffError[[1]], diffError)
+                 timeDiff = time(deltaError)
+                 decreaseValue = sapply(bestIndex, function(x) {
+                   startDepressionIdx = max(c(1, which(diffError[1:x] > 0)),
+                                            na.rm = FALSE)
+                   if (is.infinite(startDepressionIdx)) {
+                     Inf
+                   } else {
+                     as.numeric((deltaError[[x]] - deltaError[[startDepressionIdx]]) /
+                                  (timeDiff[[x]] - timeDiff[[startDepressionIdx]]) )
+                   }
+                 })
+                 bestIndex[[which.min(decreaseValue)]]
+               },
+               "na" = bestIndex[[1]])
+    }
     if (length(bestIndex) == 0) {
       # pick global minimum
       bestIndex = which.min(deltaError)
@@ -209,7 +229,8 @@ fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
                         nSim = 500, nthreads = 1,
                         solveTiesDrift = c("maxDrop","minArg", "maxArg","minVal", "maxVal", "na"),
                         solveTiesDiff = c("maxDrop", "minArg", "maxArg","minVal", "maxVal", "na"),
-                        errorBw = 0.1, plotErrors = TRUE) {
+                        driftErrorBw = 0.1, diffErrorBw = driftErrorBw,
+                        plotErrors = TRUE) {
   if (length(driftBw) * length(diffBw) == 1) {
     return(
       kbr_train(x,h, kernels, c(driftBw, diffBw))
@@ -221,7 +242,7 @@ fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
     bw1 =  select_best_bandwidth(x = x, h = h, kernels = kernels,
                                  type = "drift",
                                  bwGrid = driftBw, fixedBw = mean(diffBw),
-                                 errorBw = errorBw,
+                                 errorBw = driftErrorBw,
                                  nSim = nSim, solveTies = solveTiesDrift,
                                  nthreads, plotErrors)
     bestDriftBw = attr(bw1$best[[1]], "bws")[[1]]
@@ -234,14 +255,15 @@ fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
     bw2 =  select_best_bandwidth(x = x, h = h,
                                  kernels =  kernels, type = "diff",
                                  bwGrid = diffBw, fixedBw = bestDriftBw,
-                                 errorBw = errorBw,
+                                 errorBw = diffErrorBw,
                                  nSim = nSim, solveTies = solveTiesDiff,
                                  nthreads, plotErrors)
     best = bw2$best[[1]]
   } else {
     best = bw1$best[[1]]
   }
-  list(best = best, all = c(bw1$all, bw2$all))
+  list(best = best, all = list(drift = bw1$all,diff = bw2$all),
+       errors = list(drift = bw1$deltaError, diff = bw2$deltaError))
 }
 
 
