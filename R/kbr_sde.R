@@ -118,7 +118,7 @@ select_best_bandwidth =
 
     models =
       foreach(bwIt = bwGrid, .combine = c,
-              .init = list(), .packages = 'gpsde') %fun% {
+              .init = list(), .packages = 'sgpsde') %fun% {
                 bwPars = switch(type,
                                 "drift" = c(bwIt, fixedBw),
                                 "diff" = c(fixedBw, bwIt))
