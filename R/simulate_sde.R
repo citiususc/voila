@@ -2,12 +2,12 @@
 #' @export
 #' @importFrom yuima setModel simulate setSampling get.zoo.data
 simulate_sde = function(driftExpression, diffExpression,
-                        samplingPeriod, tsLength, xinit,
+                        samplingPeriod, tsLength, xinit = rnorm(1),
                         trueParameter = list()) {
   model = suppressWarnings(setModel(drift = driftExpression,
                                     diffusion = diffExpression))
   X = suppressWarnings(simulate(model,
-                               xinit =  xinit,
+                                xinit =  xinit,
                                 sampling = setSampling(delta = samplingPeriod,
                                                        n = tsLength),
                                 true.parameter = trueParameter)

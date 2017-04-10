@@ -2,12 +2,10 @@ library("sgpsde")
 
 # simulate Ornstein-Uhlenbeck time series ---------------------------------
 h = 0.001
-#set.seed(1)
-model = suppressWarnings(setModel(drift = "-x",
-                                  diffusion = "sqrt(2)"))
-X = suppressWarnings(simulate(model,
-                              sampling = setSampling(delta = h, n = 10000)))
-x = as.matrix(get.zoo.data(X)[[1]], ncol = 1)
+drift = "-x"
+diffusion = "sqrt(2)"
+x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 10000)
+plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
 
 # do inference  ----------------------------------------------------------
 m = 10
@@ -32,7 +30,13 @@ predictionSupport = matrix(seq(quantile(x,0.05), quantile(x,0.95), len = 100), n
 driftPred = predict(inferenceResults$drift, predictionSupport)
 diffPred = predict(inferenceResults$diff, predictionSupport, log = TRUE)
 
-plot(driftPred, main = "Drift")
-lines(predictionSupport, -predictionSupport, col = 2)
-plot(diffPred, main = "Diffusion", include = TRUE, log = "y")
-lines(predictionSupport, rep(2, nrow(predictionSupport)), col = 2)
+realDrift = eval(parse(text = drift), list(x = predictionSupport))
+plot(driftPred, main = "Drift", ylim = range(c(realDrift, driftPred$qs)))
+lines(predictionSupport, realDrift, col = 2)
+realDiff = eval(parse(text = diffusion), list(x = predictionSupport)) ^ 2
+if (length(realDiff) == 1) {
+  realDiff = rep(realDiff, length(supportX))
+}
+plot(diffPred, main = "Diffusion", include = TRUE, log = "y",
+     ylim = range(c(realDiff, diffPred$qs)))
+lines(predictionSupport, realDiff, col = 2)
