@@ -6,27 +6,3 @@
 
 using namespace Rcpp;
 
-// mv
-arma::mat mv(arma::vec& x, int nrow, int ncol);
-RcppExport SEXP sgpsde_mv(SEXP xSEXP, SEXP nrowSEXP, SEXP ncolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type nrow(nrowSEXP);
-    Rcpp::traits::input_parameter< int >::type ncol(ncolSEXP);
-    rcpp_result_gen = Rcpp::wrap(mv(x, nrow, ncol));
-    return rcpp_result_gen;
-END_RCPP
-}
-// vm
-arma::vec vm(arma::mat& x);
-RcppExport SEXP sgpsde_vm(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(vm(x));
-    return rcpp_result_gen;
-END_RCPP
-}

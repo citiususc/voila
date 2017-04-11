@@ -1,18 +1,18 @@
 #' @export
-plot.sde_prediction = function(x, includeConf = TRUE,
+plot.sde_prediction = function(x, includeConf = TRUE, col = 1,
                                type = "l", ylim = NULL, ...) {
-  plot_sde_prediction('plot', x, includeConf, type, ylim, ...)
+  plot_sde_prediction('plot', x, includeConf, col, type, ylim, ...)
 }
 
 
 #' @export
-lines.sde_prediction = function(x, includeConf = TRUE,
+lines.sde_prediction = function(x, includeConf = TRUE, col = 1,
                                type = "l", ylim = NULL, ...) {
-  plot_sde_prediction('lines', x, includeConf, type, ylim, ...)
+  plot_sde_prediction('lines', x, includeConf, col, type, ylim, ...)
 }
 
 
-plot_sde_prediction = function(funName, x, includeConf, type, ylim, ...) {
+plot_sde_prediction = function(funName, x, includeConf, col, type, ylim, ...) {
     FUN = match.fun(funName)
     indx = order(x$x)
     support = x$x[indx]
@@ -33,7 +33,6 @@ plot_sde_prediction = function(funName, x, includeConf, type, ylim, ...) {
                 col = "lightgray")
       } else {
         dotList = list(...)
-        col = ifelse('col' %in% names(dotList), dotList$col, 1)
         # pick a different lty ...
         validLty =  c('blank', 'solid', 'dashed', 'dotted', 'dotdash', 'longdash', 'twodash')
         if ('lty' %in% names(dotList)) {
@@ -52,7 +51,7 @@ plot_sde_prediction = function(funName, x, includeConf, type, ylim, ...) {
         lines(support, xsup, lty = lty, col = col)
       }
     }
-    lines(support, x$mean[indx], type = type)
+    lines(support, x$mean[indx], col = col, type = type, ...)
 }
 
 
