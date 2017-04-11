@@ -16,24 +16,24 @@ knitr::opts_chunk$set(
 `voila` is an `R` package for the non-parametric estimation of Langevin
 equations (also called Stochastic Differential Equations or SDE) from a 
 densely-observed time series. The Langevin equation states that the dynamic
-evolution of an observable $X_t$ depends on a deterministic force $f(X_t)$, 
-called the drift, and some random fluctuation $g(X_t)$, called the diffusion:
-$$d X_t = \underbrace{f(X_t)}_{Drift}d{t} + \underbrace{\sqrt{g(X_t)}}_{Diffusion} d{W_t},$$
-where $W_t$ represents a 
-[Wiener process](https://en.wikipedia.org/wiki/Wiener_process).
+evolution of an observable X depends on a deterministic force, 
+called the drift, and some random fluctuation, called the diffusion:
+
+<img src=README-figures/langevin_annotated.png width=350 style="display: block; margin: auto;" >
+
+where W represents a [Wiener process](https://en.wikipedia.org/wiki/Wiener_process).
 
 `voila` models the drift and diffusion terms as 
 [gaussian processes](http://katbailey.github.io/post/gaussian-processes-for-dummies/)
-(GPs).  To cope with the computational complexity of calculating the posterior 
-distribution of the GPs (which scales as  $\mathcal{O}(N ^ 3)$), the GPs 
-are approximated using a small set of function points, the inducing variables. 
-This inducing variables $\mathbf{f}_m$ and $\mathbf{g}_m$ are the result of 
-evaluating the drift and diffusion terms at some _strategically_ located 
-pseudo-inputs $\mathbf{x}_m$. The pseudo-inputs and the approximate posterior 
+(GPs). To cope with the computational complexity that calculating the posterior 
+distribution of the GPs requires, the GPs are approximated using a small set of 
+function points, the inducing variables.  These inducing variables are the
+result of evaluating the drift  and diffusion terms at some _strategically_ 
+located pseudo-inputs. The pseudo-inputs and the approximate posterior 
 distributions are learnt using 
-[variational inference](http://blog.evjang.com/2016/08/variational-bayes.html), which minimizes the 
-Kullback-Leibler divergence between the true posterior GP distribution and 
-the approximated one. 
+[variational inference](http://blog.evjang.com/2016/08/variational-bayes.html),
+which minimizes the  Kullback-Leibler divergence between the true posterior 
+distribution and the approximated one. 
 
 The method is fully described in the paper:
 
@@ -52,8 +52,7 @@ install_github("citiususc/voila")
 
 ## A quick-example
 In this quick-example, `voila` is used to estimate the drift and diffusion terms  
-from a single realization of an 
-unidimensional
+from a single realization of an unidimensional
 [Ornstein–Uhlenbeck](https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process)
 process.
 
