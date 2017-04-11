@@ -30,7 +30,7 @@ plot_sde_prediction = function(funName, x, includeConf, col, type, ylim, ...) {
       if (funName == "plot") {
         polygon(c(support, rev(support)),
                 c(xinf, rev(xsup)),
-                col = "lightgray")
+                col = "gray90")
       } else {
         dotList = list(...)
         # pick a different lty ...

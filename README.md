@@ -8,11 +8,11 @@ voila: Variational Inference for Langevin Equations
 
 where W represents a [Wiener process](https://en.wikipedia.org/wiki/Wiener_process).
 
-`voila` models the drift and diffusion terms as [gaussian processes](http://katbailey.github.io/post/gaussian-processes-for-dummies/) (GPs). To cope with the computational complexity that calculating the posterior distribution of the GPs requires, the GPs are approximated using a small set of function points, the inducing variables. These inducing variables are the result of evaluating the drift and diffusion terms at some *strategically* located pseudo-inputs. The pseudo-inputs and the approximate posterior distributions are learnt using [variational inference](http://blog.evjang.com/2016/08/variational-bayes.html), which minimizes the Kullback-Leibler divergence between the true posterior distribution and the approximated one.
+`voila` permits to estimate the drift and diffusion terms by modelling them as [gaussian processes](http://katbailey.github.io/post/gaussian-processes-for-dummies/) (GPs). To cope with the computational complexity that calculating the posterior distribution of the GPs requires, the GPs are approximated using a small set of function points, the inducing variables. These inducing variables are the result of evaluating the drift and diffusion terms at some *strategically* located pseudo-inputs. The pseudo-inputs and the approximate posterior distributions are learnt using [variational inference](http://blog.evjang.com/2016/08/variational-bayes.html), which minimizes the Kullback-Leibler divergence between the true posterior distribution and the approximated one.
 
 The method is fully described in the paper:
 
-> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes** **(in review)**.
+> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes** **(under review)**.
 
 Installation
 ------------
@@ -32,7 +32,7 @@ from a single realization of an unidimensional [Ornstein–Uhlenbeck](https://en
 
 ``` r
 library("voila", quietly = TRUE, verbose = FALSE)
-# simulate a Ornstein-Uhlenbeck time series ---------------------------------
+# simulate a Ornstein-Uhlenbeck time series using voila ---------------------
 set.seed(1234)
 samplingPeriod = 0.001
 drift = "-x"
@@ -48,7 +48,7 @@ plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process"
 ## Some parameters for the algorithm
 # the number of inducing points
 noInducingPoints = 10 
-# Our prior believe about the amplitude of the drift and diffusion functions
+# Our prior belief about the amplitude of the drift and diffusion functions
 functionsUncertainty = 5 
 # A small value to be added to the diagonal of the covariance matrix for
 # stability purposes
@@ -63,9 +63,10 @@ targetIndex = 1
 # are optimized during the inference
 pseudoInputs = matrix(seq(min(x), max(x), len = noInducingPoints), ncol = 1)
 
-# Create the kernels defining the behaviour of the gaussian processes. The 
-# hyperparameters of the kernels are optimized during the inference process.
-# Create a Rational Quadratic Kernel for the drift
+# Create the kernels defining the behaviour of the gaussian processes. 
+# Create a Rational Quadratic Kernel for the drift with some initial values for
+# the hyperparameters. These hyperparameters will be optimized during the 
+# inference process.
 driftKer = sde_kernel("rq_kernel",
                        list('amplitude' = functionsUncertainty,
                             'alpha' = 1,
