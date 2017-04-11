@@ -34,9 +34,6 @@ public:
   kernel sum_kernel(const kernel& ker);
   kernel multiply_kernel(const kernel& ker);
   kernel scale_kernel(double constant);
-
-  virtual void greet() { std::cout << "Base kernel:" << std::endl;}
-
 protected:
   int mInputDimension;
   arma::vec mHP;

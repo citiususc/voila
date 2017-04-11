@@ -105,8 +105,7 @@ Rcpp::List sde_variational_inferencer::do_inference(const arma::mat& timeSeries,
   mNoPseudoInputs = inducingPoints.n_rows;
   mInducingPoints = inducingPoints;
 
-  Rcpp::Rcout << "Let's do some VI" << std::endl;
-  mDriftKernel.greet();
+  Rcpp::Rcout << "Starting Variational Inference" << std::endl;
 
   // set the variables related to the class problem properly
   // TODO: create a protected set_input_dimension that resets also

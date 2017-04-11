@@ -16,9 +16,6 @@ public:
                      const arma::vec& lengthScales,
                      double epsilon = 0.0);
 
-  //TODO remove
-  void greet() { std::cout << "exp kernel" << std::endl;}
-
 private:
   static kernel::kernel_expression generate_exponential_kernel(double amplitude);
 };
