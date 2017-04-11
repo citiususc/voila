@@ -1,16 +1,16 @@
-library("sgpsde")
+library("voila")
 
 # simulate Ornstein-Uhlenbeck time series ---------------------------------
 h = 0.001
 drift = "-x"
-diffusion = "sqrt(2)"
+diffusion = "sqrt(1.5)"
 x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 10000)
 plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
 # kbr fit  ----------------------------------------------------------
 kbrEst = fit_kbr_sde(x, h, driftBw = seq(0.2, 0.4, len = 25),
                  diffBw = seq(0.01, 0.2, len = 25),
                  driftErrorBw = 0.1, diffErrorBw = 0.1,
-                 nSim = 700, nthreads = 3)
+                 nSim = 700, nthreads = 3, plotErrors = FALSE)
 # check results -----------------------------------------------------------
 realDrift = eval(parse(text = drift), list(x = kbrEst$best$x))
 plot(kbrEst$best, "drift", ylim = range(c(realDrift, kbrEst$best$drift)))

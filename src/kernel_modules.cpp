@@ -28,7 +28,7 @@ RCPP_EXPOSED_CLASS(exponential_constant_kernel);
 RCPP_EXPOSED_CLASS(sum_exponential_kernels);
 RCPP_EXPOSED_CLASS(exponential_linear_kernel);
 
-RCPP_MODULE(KERNELS){
+RCPP_MODULE(VOILA_KERNELS){
   class_<kernel>("gp_kernel")
   .method("get_hyperparams", &kernel::get_hyperparams)
   .method("set_hyperparams", &kernel::set_hyperparams)

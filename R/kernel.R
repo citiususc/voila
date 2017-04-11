@@ -1,10 +1,10 @@
 
 # modify to add new kernels ----------------------------------------------------
-kSgpsdeValidKernels = c("exp_kernel", "rq_kernel",
+kVoilaValidKernels = c("exp_kernel", "rq_kernel",
                         "sum_exp_kernels", "exp_const_kernel", "clamped_exp_lin_kernel")
 
 is_valid_kernel_pointer = function(kernel) {
-  any(sapply(paste0("Rcpp_", kSgpsdeValidKernels),
+  any(sapply(paste0("Rcpp_", kVoilaValidKernels),
         FUN = inherits, x = kernel))
 }
 
@@ -12,7 +12,7 @@ create_kernel_pointer = function(obj, ...) {
   UseMethod("create_kernel_pointer", obj)
 }
 
-kSgpsdeRequiredParameters = list(
+kVoilaRequiredParameters = list(
   'exp_kernel' = c('amplitude','lengthScales'),
   'rq_kernel' = c('amplitude', 'alpha', 'lengthScales'),
   'sum_exp_kernels' = c('maxAmplitude','amplitude1', 'lengthScales1', 'lengthScales2'),
@@ -102,10 +102,10 @@ sde_kernel = function(type = c("exp_kernel", "rq_kernel", "sum_exp_kernels",
                       parameters, inputDimension = 1, epsilon = 0) {
 
   type = match.arg(type)
-  if ((length(names(parameters)) < length(kSgpsdeRequiredParameters[[type]])) ||
-      !all(names(parameters) %in% kSgpsdeRequiredParameters[[type]])) {
+  if ((length(names(parameters)) < length(kVoilaRequiredParameters[[type]])) ||
+      !all(names(parameters) %in% kVoilaRequiredParameters[[type]])) {
     stop(paste0("Missing parameters:'", type, "' kernel requires the NAMED parameters c('",
-                paste(collapse = "', '", kSgpsdeRequiredParameters[[type]]), "')"))
+                paste(collapse = "', '", kVoilaRequiredParameters[[type]]), "')"))
   }
   # create kernel just to check the parameters correction (use C++ code to
   # avoid replication) and get default bounds

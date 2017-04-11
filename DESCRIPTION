@@ -1,14 +1,14 @@
-Package: sgpsde
+Package: voila
 Type: Package
-Title: Estimation of SDE's Terms Using Sparse Gaussian Processes
+Title: Variational Inference for Langevin Equations
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: Who to Author: Constantino Antonio Garcia Martinez
 Maintainer: Constantino Antonio Garcia Martinez <constantinoantonio.garcia@usc.es>
-Description: Estimation of SDE's Terms Using Sparse Gaussian Processes
+Description: Estimation of Langevin Equations Using Variational Inference and Sparse Gaussian Processes
 License: GPL (>= 3)
 LazyLoad: yes
 Depends: yuima, Rcpp(>= 0.12.6), methods
 LinkingTo: Rcpp, RcppArmadillo
-RcppModules: KERNELS
+RcppModules: VOILA_KERNELS
 RoxygenNote: 5.0.1

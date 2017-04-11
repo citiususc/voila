@@ -12,12 +12,12 @@ preproc = function(x, method = c("center", "scale"),
                               ifelse(is.null(useCenter),mean(x), useCenter),
                               0)
   )
-  class(object) = "sgpsde_preproc"
+  class(object) = "voila_preproc"
   object
 }
 
 #' @export
-predict.sgpsde_preproc = function(object, input, inverse = FALSE) {
+predict.voila_preproc = function(object, input, inverse = FALSE) {
   if (inherits(input, "sde_prediction")) {
     input$x = predict(object, input$x, inverse = inverse)
     scalingFactor = ifelse(input$lognormal, object$sd ^ 2, object$sd)

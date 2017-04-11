@@ -1,4 +1,4 @@
-library("sgpsde")
+library("voila")
 
 # simulate Ornstein-Uhlenbeck time series ---------------------------------
 h = 0.001
@@ -53,9 +53,9 @@ inference2 = sde_vi(targetIndex, x, h, xm, driftKer2, diffKer2,
 # check convergence
 oldPar = par(mfrow = c(2,1))
 plot(inference1$likelihoodLowerBound[-1],
-     main = "Lower Bound (exponential kernel)")
+     main = "Lower Bound (Estimate 1)", ylab = "L", xlab = "Iteration")
 plot(inference2$likelihoodLowerBound[-1],
-     main = "Lower Bound (exponential-linear kernel)")
+     main = "Lower Bound (Estimate 2)", ylab = "L", xlab = "Iteration")
 par(oldPar)
 
 # get predictions for plotting

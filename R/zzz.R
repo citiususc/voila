@@ -1,6 +1,6 @@
-loadModule("KERNELS", TRUE)
+loadModule("VOILA_KERNELS", TRUE)
 
-#' @useDynLib sgpsde
+#' @useDynLib voila
 #' @export gp_kernel exp_kernel rq_kernel exp_const_kernel sum_exp_kernels clamped_exp_lin_kernel
 #' @importFrom yuima simulate setModel setSampling get.zoo.data
 NULL
