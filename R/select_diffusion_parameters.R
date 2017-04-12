@@ -6,12 +6,12 @@ select_diffusion_parameters = function(x, samplingPeriod,
                                        varX = NULL) {
   if (is.matrix(x)) {
     if (is.null(varX)) {
-      varX = var(diff(as.numeric(x[,responseVariableIndex])))
+      varX = mad(diff(as.numeric(x[,responseVariableIndex]))) ^ 2
     }
   } else {
     x = as.numeric(x)
     if (is.null(varX)) {
-      varX = var(diff(x))
+      varX = mad(diff(x)) ^ 2
     }
   }
 

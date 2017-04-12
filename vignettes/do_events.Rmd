@@ -1,0 +1,118 @@
+---
+title: "Real example: analysis of DO events"
+author: "Constantino A. García"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{do_events}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes: 
+  \usepackage{bm}
+---
+In this vignette, a paleoclimate record from the Greenland ice cores is studied.
+Among other interesting phenomena, these records permit to identify the abrupt 
+climate changes that occurred during the last glacial period, which are usually
+referred to as  Dansgaard-Oeschger (DO) events. Specifically, a 
+$\delta^{18}\text{O}$ record from the North Greenland Ice Core Project
+([NGRIP](http://www.iceandclimate.nbi.ku.dk/data/)) is used. The 
+$\delta^{18}\text{O}$ is a measure of the  ratio of the stable isotopes 
+oxygen-18 and oxygen-16 and it is commonly used to estimate the temperature at 
+the time that each small section of the ice core was formed. The data is already
+preloaded with `voila`:
+
+```{r plot_do, fig.align='center', message=FALSE}
+library('voila')
+plot(do_events, main = "DO events",
+     xlab = "Time (Ky before present)", 
+     ylab = expression(paste(delta,'18-O (permil)')))
+```
+
+For the sake of simplicity (and convergence speed), we shall use 10
+pseudo-inputs and two rational quadratic kernels, although these selections are
+not optimal (see reference [1] for further details). The following snippet performs
+the inference after specifying some initial values for the pseudo-inputs and 
+the kernels.
+
+```{r inference, fig.align='center', message=FALSE, results = 'hide', cache=TRUE, eval=FALSE}
+# sampling period in Ky before present
+samplingPeriod = deltat(do_events) 
+# voila uses data in matrix format 
+do_events = matrix(do_events, ncol = 1)
+# Spread initial pseudo-inputs along the support of do_events
+noInducingPoints = 10
+pseudoInputs = matrix(seq(min(do_events), max(do_events), len = noInducingPoints),
+                      ncol = 1)
+# small value to regularize covariance matrices
+epsilon = 1e-5
+# Create the kernels defining the behaviour of the gaussian processes. 
+# We shall create two Rational Quadratic Kernel for both the drift and 
+# diffusion with some initial values for the hyperparameters. These 
+# hyperparameters will be optimized during the inference process.
+driftKer = sde_kernel("rq_kernel",
+                       list('amplitude' = 30, # huge amplitude: huge uncertainty
+                            'alpha' = 2,
+                            'lengthScales' = 2),
+                      ncol(do_events), epsilon)
+# Voila uses a log-normal prior to ensure the positiveness of the diffusion. The 
+# 'select_diffusion_parameters' function permits to select a proper amplitude for the
+# kernel from our prior belief about the amplitude of the diffusion function. It also
+# selects a mean value for the log-normal distribution (denoted with v)
+diffParams = select_diffusion_parameters(do_events, samplingPeriod, 
+                                         priorOnSd = 30)
+diffKer =  sde_kernel("rq_kernel",
+                      list('amplitude' = diffParams$kernelAmplitude,
+                           'alpha' = 1,
+                           'lengthScales' = 2),
+                      ncol(do_events), epsilon)
+
+# Perform the variational inference (VI)
+inference = sde_vi(1, do_events, samplingPeriod, pseudoInputs, 
+                   driftKer, diffKer, diffParams$v,
+                   maxIterations = 1000)
+
+```
+
+```{r loadData, echo=FALSE}
+# voila ships with the results of the previous snippet to avoid slow
+# installations
+inference = readRDS("../inst/extdata/oxygen_estimates.RDS")
+
+```
+
+The following snippet plots the resulting estimates of the drift and diffusion
+functions.
+
+```{r plot_results, fig.align='center'}
+# Get the estimations for the drift and diffusion
+predictionSupport = matrix(seq(quantile(do_events,0.025), 
+                               quantile(do_events,0.975), len = 100),
+                           ncol = 1)
+driftPred = predict(inference$drift, predictionSupport)
+# the diffusion uses a log-normal gaussian process, so we must specify log = TRUE
+diffPred = predict(inference$diff, predictionSupport, log = TRUE)
+
+# Plot drift
+plot(driftPred, main = "voila's Drift Estimate",
+     xlab = expression(paste("x = ", delta,'18-O (permil)')),
+     ylab = "Drift f(x)")
+abline(h = 0, lty = 2, col = 2)
+# Plot diffusion
+plot(diffPred, main = "voila's Diffusion Estimate",
+     xlab = expression(paste("x = ", delta,'18-O (permil)')),
+     ylab = "Diffusion g(x)")
+```
+
+Note that the drift function has two stable points (where the drift function
+crosses zero with negative slope) for x = -43.5 and x = -40, corresponding to
+the cold stable state and the hot metastable state, respectively. The diffusion
+function supports the use of a state-dependent diffusion 
+rather than the widely-used constant term. Further discussion about the diffusion
+function may be found at reference [1].
+
+
+### References
+This example is discussed in detail in the paper:
+
+> [1] García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with 
+Sparse Gaussian Processes** _(under review)_.
+

@@ -12,7 +12,7 @@ where W represents a [Wiener process](https://en.wikipedia.org/wiki/Wiener_proce
 
 The method is fully described in the paper:
 
-> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes** **(under review)**.
+> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes** *(under review)*.
 
 Installation
 ------------
@@ -148,6 +148,19 @@ legend("topright", lty = 1, col = 1:2,
 ```
 
 <img src="README-figures/ornstein_example-4.png" style="display: block; margin: auto;" />
+
+vignettes
+---------
+
+A vignette is a long-form guide used for `R` packages. The `voila` vignettes can be accessed after installing the package by typing:
+
+``` r
+vignette(vignetteName, package = 'voila')
+```
+
+Currently, the following vignettes are available:
+
+-   `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) events. The DO events are fast climate changes that occurred during the last glacial period.
 
 License
 -------

@@ -38,7 +38,7 @@ distribution and the approximated one.
 The method is fully described in the paper:
 
 > García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with 
-Sparse Gaussian Processes** __(under review)__.
+Sparse Gaussian Processes** _(under review)_.
 
 ## Installation
 `voila` is not currently available on [CRAN](http://cran.r-project.org/), but it
@@ -140,6 +140,19 @@ legend("topright", lty = 1, col = 1:2,
        legend = c("Estimate", "Real"), bty = "n")
 ```
 
+## vignettes
+A vignette is a long-form guide used for `R` packages. The `voila` vignettes
+can be accessed after installing the package by typing:
+
+```R
+vignette(vignetteName, package = 'voila')
+```
+
+Currently, the following vignettes are available:
+  
+  * `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) 
+  events. The DO events are fast climate changes that occurred during the last 
+  glacial period. 
 
 ## License
 This project is licensed under the terms of the [GPL v3 license](LICENSE).
