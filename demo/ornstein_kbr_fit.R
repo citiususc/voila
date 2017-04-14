@@ -5,7 +5,7 @@ h = 0.001
 drift = "-x"
 diffusion = "sqrt(1.5)"
 x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 10000)
-plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
+plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein-Uhlenbeck process")
 # kbr fit  ----------------------------------------------------------
 kbrEst = fit_kbr_sde(x, h, driftBw = seq(0.2, 0.4, len = 25),
                  diffBw = seq(0.01, 0.2, len = 25),
@@ -23,4 +23,3 @@ if (length(realDiffusion) == 1) {
 plot(kbrEst$best, "diff",  ylim = range(c(kbrEst$best$diffusion, realDiffusion)))
 lines(kbrEst$best$x, realDiffusion, col = 2)
 legend("bottomright", col = 1:2, lty = 1, legend = c("Estimate", "Real"))
-

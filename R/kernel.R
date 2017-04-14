@@ -96,6 +96,22 @@ create_kernel_attributes = function(type, parameters, inputDimension, epsilon) {
 # TODO: ADD ALSO TO THE TYPE ARGUMENT IN THE SDE_KERNEL FUNCTION
 # end of required modifications for new kernels --------------------------------
 
+#' Create a gaussian process' kernel
+#'
+#' Creates a kernel defining the properties of a gaussian process
+#' @param type A string specifying the type of kernel to create
+#' @param parameters A NAMED list with the parameters that the kernel needs for
+#' its proper creation. The easiest way of seeing which parameters are required
+#' is to make this function fail. For example:
+#' \emph{sde_kernel("exp_kernel",list())}
+#' @param inputDimension The input dimension of the kernel
+#' @param epsilon A small value to be added to the diagonal of the kernel
+#' covariance matrices to regularize them. This improves the numerical stability
+#' of the computations.
+#' @return A \emph{sde_kernel} S3 object
+#' @seealso \code{\link{covmat}}, \code{\link{autocovmat}}, \code{\link{vars}},
+#' \code{\link{get_hyperparams}}, \code{\link{set_hyperparams}},
+#' \code{\link{decrease_upper_bound}} and \code{\link{increase_lower_bound}}
 #' @export
 sde_kernel = function(type = c("exp_kernel", "rq_kernel", "sum_exp_kernels",
                                "exp_const_kernel", "clamped_exp_lin_kernel"),
@@ -131,27 +147,16 @@ create_kernel_pointer.sde_kernel = function(kernel) {
                                 kernel$lowerBound, kernel$upperBound)
 }
 
-
-#' @export
-autocovmat = function(kernel, x) {
-  UseMethod("autocovmat", kernel)
-}
-
-#' @export
-autocovmat.sde_kernel = function(kernel, x) {
-  kernelPointer = create_kernel_pointer(kernel)
-  kernelPointer$autocovmat(x)
-}
-
-#' @export
-autocovmat.default = function(kernel, x) {
-  # use default function to join in a single entry all the kernel pointers
-  if (!is_valid_kernel_pointer(kernel)) {
-    stop("A C++ kernel pointer was expected")
-  }
-  kernel$autocovmat(x)
-}
-
+#' Covariance matrix
+#'
+#' Computes the covariance matrix of the input vectors represented with
+#' matrices (in which each row represents an input vector).
+#'
+#' @param kernel An object representing a gaussian process' kernel, e.g. a
+#' \emph{sde_kernel} object.
+#' @param x A matrix in which each row represents an input vector. Note that
+#' if the inputDimension is univariate, a matrix with just one column should
+#' be used.
 #' @export
 covmat = function(kernel, x, y) {
   UseMethod("covmat", kernel)
@@ -173,7 +178,39 @@ covmat.default = function(kernel, x, y) {
   kernel$covmat(x, y)
 }
 
+#' Autocovariance matrix
+#'
+#' Computes the autocovariance matrix of the input vectors represented with
+#' a matrix (in which each row represents an input vector).
+#'
+#' @inheritParams covmat
+#' @export
+autocovmat = function(kernel, x) {
+  UseMethod("autocovmat", kernel)
+}
 
+#' @export
+autocovmat.sde_kernel = function(kernel, x) {
+  kernelPointer = create_kernel_pointer(kernel)
+  kernelPointer$autocovmat(x)
+}
+
+#' @export
+autocovmat.default = function(kernel, x) {
+  # use default function to join in a single entry all the kernel pointers
+  if (!is_valid_kernel_pointer(kernel)) {
+    stop("A C++ kernel pointer was expected")
+  }
+  kernel$autocovmat(x)
+}
+
+
+#' Variance vector
+#'
+#' Calculates the variances of each of the input vectors represented with
+#' a matrix (in which each row represents an input vector).
+#'
+#' @inheritParams autocovmat
 #' @export
 vars = function(kernel, x) {
   UseMethod("vars", kernel)
@@ -194,18 +231,21 @@ vars.default = function(kernel, x) {
   kernel$vars(x)
 }
 
-
+#' Get the hyperparameters of a kernel
+#' @inheritParams autocovmat
 #' @export
-get_hyperparams = function(kernel, x) {
+get_hyperparams = function(kernel) {
   UseMethod("get_hyperparams", kernel)
 }
 
 #' @export
-get_hyperparams.sde_kernel = function(kernel, x) {
+get_hyperparams.sde_kernel = function(kernel) {
   kernel$hyperparams
 }
 
-
+#' Set the hyperparameters of a kernel
+#' @inheritParams autocovmat
+#' @param x The new hyperparameters of the kernel
 #' @export
 set_hyperparams = function(kernel, x) {
   UseMethod("set_hyperparams", kernel)
@@ -249,6 +289,13 @@ set_hyperparams.default = function(kernel, hyperparams) {
 }
 
 
+#' Decreases the upper bound of the kernel
+#'
+#' Decreases the maximum values that each of the hyperparameters of the kernel
+#' may take.
+#'
+#' @inheritParams autocovmat
+#' @param upperBound A vector with the new values of the upper bound.
 #' @export
 decrease_upper_bound = function(kernel, upperBound) {
   UseMethod("decrease_upper_bound", kernel)
@@ -265,6 +312,13 @@ decrease_upper_bound.sde_kernel = function(kernel, upperBound) {
   kernel
 }
 
+#' Decreases the lower bound of the kernel
+#'
+#' Decreases the minimum values that each of the hyperparameters of the kernel
+#' may take.
+#'
+#' @inheritParams autocovmat
+#' @param lowerBound A vector with the new values of the lower bound.
 #' @export
 increase_lower_bound = function(kernel, lowerBound) {
   UseMethod("increase_lower_bound", kernel)
@@ -292,7 +346,4 @@ arrange_hyperparams_list = function(kernel, hyperparams) {
   }
   hyperparams[names(kernel$hyperparams)]
 }
-
-
-
 

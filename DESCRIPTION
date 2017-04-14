@@ -7,7 +7,8 @@ Maintainer: Constantino Antonio Garcia Martinez <constantinoantonio.garcia@usc.e
 Description: Estimation of Langevin Equations Using Variational Inference and Sparse Gaussian Processes
 License: GPL (>= 3)
 LazyLoad: yes
-Depends: yuima, Rcpp(>= 0.12.6), methods
+Depends: R (>= 2.10), yuima, Rcpp(>= 0.12.6), methods
+Imports: KernSmooth, doParallel, foreach, zoo
 LinkingTo: Rcpp, RcppArmadillo
 RcppModules: VOILA_KERNELS
 RoxygenNote: 5.0.1

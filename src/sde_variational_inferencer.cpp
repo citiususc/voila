@@ -144,7 +144,7 @@ Rcpp::List sde_variational_inferencer::do_inference(const arma::mat& timeSeries,
   mLikelihoodLowerBounds.reserve(2 * mMaxIt);
   mLikelihoodLowerBounds.push_back(get_lower_bound());
   if (mVerbose) {
-    std::cout << "Initial Lower Bound L = " << mLikelihoodLowerBounds[0] << std::endl;
+    Rcpp::Rcout << "Initial Lower Bound L = " << mLikelihoodLowerBounds[0] << std::endl;
   }
 
   int nIt = 1;

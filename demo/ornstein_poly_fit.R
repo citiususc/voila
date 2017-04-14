@@ -6,7 +6,7 @@ h = 0.001
 drift = "-x"
 diffusion = "sqrt(1.5)"
 x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 20000)
-plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
+plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein-Uhlenbeck process")
 # poly fit  ----------------------------------------------------------
 pf = fit_polynomial_sde(x, h, nDrift = 3, nDiff = 5)
 # check results -----------------------------------------------------------

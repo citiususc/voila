@@ -1,3 +1,5 @@
+#' @importFrom Rcpp loadModule
+#' @import Rcpp methods
 loadModule("VOILA_KERNELS", TRUE)
 
 #' @useDynLib voila
