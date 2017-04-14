@@ -8,6 +8,7 @@ Description: Estimation of Langevin Equations Using Variational Inference and Sp
 License: GPL (>= 3)
 LazyLoad: yes
 Depends: yuima, Rcpp(>= 0.12.6), methods
+Imports: KernSmooth, doParallel, foreach, zoo
 LinkingTo: Rcpp, RcppArmadillo
 RcppModules: VOILA_KERNELS
 RoxygenNote: 5.0.1
