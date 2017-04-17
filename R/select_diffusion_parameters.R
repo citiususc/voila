@@ -18,6 +18,7 @@
 #' the user may specify a different value using this parameter.
 #' @return A list with a mean (\emph{v}) and a covariance amplitude for the
 #' log-gaussian process (\emph{kernelAmplitude}).
+#' @seealso See \code{\link{sde_kernel}} for a very simple example.
 #' @export
 select_diffusion_parameters = function(x, samplingPeriod,
                                        priorOnSd,

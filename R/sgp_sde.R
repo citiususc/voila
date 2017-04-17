@@ -81,6 +81,7 @@ sgp_sde.default = function(kernel, xm, priorMeanFun,
 #' @return A \emph{sde_prediction} with the mean and confidence intervals
 #' of the prediction. Use the \emph{plot} function to plot the estimates.
 #' @rdname predict.sgp_sde
+#' @seealso See \code{\link{sde_vi}} for an example.
 #' @export
 predict.sgp_sde = function(object, newX, lognormal = FALSE,
                            quantiles = c(0.05, 0.95), ...) {

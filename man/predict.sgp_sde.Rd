@@ -30,4 +30,7 @@ of the prediction. Use the \emph{plot} function to plot the estimates.
 \description{
 Predictions from drift/diffusion estimates
 }
+\seealso{
+See \code{\link{sde_vi}} for an example.
+}
 

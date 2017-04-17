@@ -35,6 +35,7 @@ be used to transform new data using \emph{predict}.
 Center and scale a time series
 }
 \examples{
+data("do_events")
 plot(do_events, main = "DO events")
 pp = preproc(do_events)
 scaled_do_events = predict(pp, do_events)

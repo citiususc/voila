@@ -10,6 +10,7 @@
 #' @return \emph{preproc} returns a  \emph{voila_preproc} object that can
 #' be used to transform new data using \emph{predict}.
 #' @examples
+#' data("do_events")
 #' plot(do_events, main = "DO events")
 #' pp = preproc(do_events)
 #' scaled_do_events = predict(pp, do_events)

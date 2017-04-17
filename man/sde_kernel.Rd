@@ -28,6 +28,33 @@ A \emph{sde_kernel} S3 object
 \description{
 Creates a kernel defining the properties of a gaussian process
 }
+\examples{
+# See demo/ornstein for a complete example
+data("ornstein")
+uncertainty = 5
+inputDim = 1
+# A small value to regularize covariance matrices
+epsilon = 1e-5
+# Create a exponential kernel with lengthScale = 1 and amplitude = uncertainty
+# to model the drift function. We may select the amplitude from the fact that it
+# is a gaussian process and the 95\% confidence interval would be
+# (-2 * sqrt(amplitude), 2 * sqrt(amplitude)).
+driftKer = sde_kernel("exp_kernel",
+                      list('amplitude' = uncertainty,
+                           'lengthScales' = 1),
+                      inputDim, epsilon)
+# The selection of the amplitude parameters for gaussian process modelling the
+# diffusion term is more complicated since voila actually uses a lognormal
+# process. This function helps with the selection of the parameters from
+# an uncertainty parameter and the time series
+diffPars = select_diffusion_parameters(ornstein, deltat(ornstein),
+                                       priorOnSd = uncertainty)
+# Create another exponential kernel with lengtScale=1
+diffKer = sde_kernel("exp_kernel",
+                      list('amplitude' = diffPars$kernelAmplitude,
+                           'lengthScales' = 1),
+                      inputDim, epsilon)
+}
 \seealso{
 \code{\link{covmat}}, \code{\link{autocovmat}}, \code{\link{vars}},
 \code{\link{get_hyperparams}}, \code{\link{set_hyperparams}},

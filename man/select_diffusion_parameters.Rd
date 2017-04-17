@@ -34,4 +34,7 @@ of the diffusion term (here, variance may be interpreted as a reasonable
 estimate for the squared-amplitude of the diffusion). This function helps
 with the selection of those parameters.
 }
+\seealso{
+See \code{\link{sde_kernel}} for a very simple example.
+}
 

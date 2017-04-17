@@ -37,3 +37,12 @@ NULL
 #' @format A \emph{ts} object
 #' @source \url{ftp://ftp.ncdc.noaa.gov/pub/data/paleo/icecore/greenland/summit/ngrip/isotopes/ngrip-d18o-50yr.txt}
 "do_events"
+
+
+#' Ornstein-Uhlenbeck time series
+#'
+#' A simulation of a trajectory from an Ornstein-Uhlenbeck SDE with drift
+#' f(x) = -x and diffusion sqrt(g(x)) = sqrt(1.5)
+#'
+#' @format A \emph{ts} object
+"ornstein"
