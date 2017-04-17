@@ -1,3 +1,18 @@
+
+#' Polynomial based SDEs Estimation
+#'
+#' @param timeSeries A univariate vector representing the time series
+#' @param samplingPeriod The sampling period of the time series
+#' @param timeTs A vector with the occurrence time of each sample of the time
+#' series. Can be used as an alternative to \emph{samplingPeriod}.
+#' @param nDrift,nDiff Maximum order of the polynomial used to fit the
+#' drift/diffusion term.
+#' @param direction The mode of stepwise search, can be one of "both",
+#' "backward", or "forward". See \code{\link[stats]{step}}.
+#' @return A list with two \emph{poly_sde} objects representing the estimates
+#' for the drift and the diffusion terms. The \emph{poly_sde} objects can be
+#' used with \emph{predict} to get numerical estimates of the drift/diffusion
+#' functions.
 #' @export
 fit_polynomial_sde <- function(timeSeries, samplingPeriod = NULL,
                                timeTs = NULL,
@@ -67,12 +82,12 @@ fit_polynomial_sde <- function(timeSeries, samplingPeriod = NULL,
 
 
 #' @export
-predict.poly_sde = function(obj, newX) {
-  if (!is.null(obj$polyModel)) {
-    newX = as.data.frame(predict(obj$polyModel, newX))
-    colnames(newX) = paste0("c", 1:obj$polyOrder)
+predict.poly_sde = function(object, newX, ...) {
+  if (!is.null(object$polyModel)) {
+    newX = as.data.frame(predict(object$polyModel, newX))
+    colnames(newX) = paste0("c", 1:object$polyOrder)
   } else {
     newX = as.data.frame(newX)
   }
-  predict(obj$fit, newdata = newX)
+  predict(object$fit, newdata = newX)
 }

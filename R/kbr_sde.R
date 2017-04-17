@@ -290,7 +290,7 @@ fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
        errors = list(drift = bw1$deltaError, diff = bw2$deltaError))
 }
 
-
+#' @method plot kbr_sde
 #' @export
 plot.kbr_sde = function(x, which = c("drift", "diffusion"), type = "l",
                         xlab = NULL, ylab = NULL, main = NULL, ...) {

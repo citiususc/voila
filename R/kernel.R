@@ -154,8 +154,8 @@ create_kernel_pointer.sde_kernel = function(kernel) {
 #'
 #' @param kernel An object representing a gaussian process' kernel, e.g. a
 #' \emph{sde_kernel} object.
-#' @param x A matrix in which each row represents an input vector. Note that
-#' if the inputDimension is univariate, a matrix with just one column should
+#' @param x,y A matrix in which each row represents an input vector. Note that
+#' if the inputs are univariate, a matrix with just one column should
 #' be used.
 #' @export
 covmat = function(kernel, x, y) {
@@ -245,9 +245,9 @@ get_hyperparams.sde_kernel = function(kernel) {
 
 #' Set the hyperparameters of a kernel
 #' @inheritParams autocovmat
-#' @param x The new hyperparameters of the kernel
+#' @param hyperparams The new hyperparameters of the kernel
 #' @export
-set_hyperparams = function(kernel, x) {
+set_hyperparams = function(kernel, hyperparams) {
   UseMethod("set_hyperparams", kernel)
 }
 

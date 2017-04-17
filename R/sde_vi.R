@@ -27,6 +27,17 @@
 #' @return A list with two \emph{sgp_sde} objects representing the drift
 #' and diffusion estimates (\emph{drift} and \emph{diff} fields) and other
 #' useful information related with the inference process.
+#' \itemize{
+#'  \item \emph{likelihoodLowerBound}: The likelihood lower bound in each of the
+#'  iterations.
+#'  \item \emph{inducingPoints}: The inducing points that result of the
+#'  inference process.
+#'  \item \emph{driftHyperparams}, \emph{diffHyperparams}: the hyperparameters
+#'   of the drift/diffusion kernels after the optimization.
+#'  \item \emph{driftKernelParameters}, \emph{diffKernelParameters}: Lists
+#'  containing the mean and covariance matrix of the variational distributions
+#'  of the drift/diffusion terms.
+#' }
 #' @export
 sde_vi = function(timeSeriesIndex = 1, timeSeries, samplingPeriod,
                   xm, fKernel, sKernel, v,

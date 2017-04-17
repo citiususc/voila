@@ -1,3 +1,4 @@
+#' @method plot sde_prediction
 #' @export
 plot.sde_prediction = function(x, includeConf = TRUE, col = 1,
                                type = "l", ylim = NULL, ...) {
