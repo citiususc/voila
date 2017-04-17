@@ -115,7 +115,8 @@ select_best_bandwidth =
     } else {
       `%fun%` = `%do%`
     }
-
+    # just declare it here to avoid NOTES with R CMD check
+    bwIt = NULL
     models =
       foreach(bwIt = bwGrid, .combine = c,
               .init = list(), .packages = 'voila') %fun% {
@@ -222,7 +223,30 @@ select_best_bandwidth =
   }
 
 
-
+#' Kernel Based SDEs Estimation
+#'
+#' Estimates the drift and diffusion terms of a Langevin Equation using the
+#' Kernel Based Regression (KBR) method from a one-dimensional time series.
+#'
+#' @param x A univariate vector representing the time series
+#' @param h The sampling period of the time series
+#' @param kernels A vector of 2 strings specifying which kernels should be used
+#' in the KBR estimation for the drift (first component of the vector) and the
+#' diffusion (second component). It is currently ignored since only the Gaussian
+#' kernel is supported.
+#' @param driftBw,diffBw Bandwidth of the Gaussian kernel used to estimate the
+#' drift/diffusion term
+#' @param nSim = 500 Number of simulations used to calculate the delta-error
+#' (see references)
+#' @param nthreads = 1 Number of threads to be used during the computation
+#' @param solveTiesDrift,solveTiesDiff  A string specifying the strategy to
+#' be used to break ties between two different bandwidths with the same
+#' delta-error for the drift and diffusion terms, respectively.
+#' @param driftErrorBw,diffErrorBw Since the delta-errors are noisy, a rolling
+#' mean is used before selecting the best bandwidth. These parameters specify
+#' the width of the rolling mean (in units of bandwidth) used to smooth the
+#' drift-errors and the diffusion-errors, respectively
+#' @param plotErrors Boolean value. Plot delta-errors?
 #' @export
 fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
                         driftBw = 0.5, diffBw = 0.5,
@@ -266,7 +290,7 @@ fit_kbr_sde <- function(x, h, kernels = c("normal", "normal"),
        errors = list(drift = bw1$deltaError, diff = bw2$deltaError))
 }
 
-
+#' @method plot kbr_sde
 #' @export
 plot.kbr_sde = function(x, which = c("drift", "diffusion"), type = "l",
                         xlab = NULL, ylab = NULL, main = NULL, ...) {

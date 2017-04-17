@@ -1,8 +1,23 @@
+#' Simulate Langevin Equations
+#'
 #' A simple wrapper for yuima's SDE simulation methods
+#' @param driftExpression,diffExpression A string/\emph{expression} specifying
+#' the drift and diffusion terms
+#' @param samplingPeriod The sampling period of the resulting time series
+#' @param tsLength The length of the resulting time series
+#' @param xinit Initial value for the resulting time series
+#' @param trueParameter A list containing the true parameters of the drift and
+#' diffusion expressions (in the case that there are some unknown values).
+#' @return A matrix containing the simulated trajectory.
+#' @seealso \code{\link[yuima]{simulate}}
 #' @export
+#' @examples
+#' simTs = simulate_sde("-x", "sqrt(2)", 0.001, 1000)
+#' plot.ts(simTs, xlab = "Time t", ylab = "x(t)",
+#'         main = "Ornstein-Uhlenbeck process")
 #' @importFrom yuima setModel simulate setSampling get.zoo.data
 simulate_sde = function(driftExpression, diffExpression,
-                        samplingPeriod, tsLength, xinit = rnorm(1),
+                        samplingPeriod, tsLength, xinit,
                         trueParameter = list()) {
   model = suppressWarnings(setModel(drift = driftExpression,
                                     diffusion = diffExpression))

@@ -1,4 +1,12 @@
-# useful for creating functions that return a constant value
+#' Create a function returning a constant value
+#'
+#' @param v Constant value to be returned by the function
+#' @return A function returning a vector with constant value \emph{v} and
+#' length equal to the input vector
+#' @examples
+#' fun = constant_function_factory(0)
+#' # all values are TRUE
+#' print(fun(1:10) == rep(0, 10))
 #' @export
 constant_function_factory = function(v) {
   force(v)
@@ -11,11 +19,27 @@ constant_function_factory = function(v) {
   }
 }
 
+
+#' SGP-based estimate of a Langevin Equation/SDE
+#'
+#' @param kernel @param kernel An object representing a gaussian process'
+#' kernel, e.g. a \emph{sde_kernel} object.
+#' @param xm A matrix representing the pseudo-inputs of the Sparse Gaussian
+#' Process (SGP).
+#' @param priorMeanFun A function returning the prior mean of the gaussian
+#' process.
+#' @param posteriorMean A vector representing the mean of the gaussian
+#' distribution that approximates the posterior of the drift/diffusion term.
+#' @param posteriorCov A matrix representing the covariance matrix of the
+#' gaussian distribution that approximates the posterior of the
+#' drift/diffusion term.
+#' @seealso \code{\link{predict.sgp_sde}}
 #' @export
 sgp_sde = function(kernel, xm, priorMeanFun,
                    posteriorMean, posteriorCov) {
   UseMethod("sgp_sde", kernel)
 }
+
 
 #' @export
 sgp_sde.default = function(kernel, xm, priorMeanFun,
@@ -40,9 +64,28 @@ sgp_sde.default = function(kernel, xm, priorMeanFun,
   sgp
 }
 
+
+
+#' Predictions from drift/diffusion estimates
+#'
+#' @param object An \emph{sgp_sde} object representing an estimate of a
+#' drift/diffusion term.
+#' @param newX A matrix representing the new input values with which to predict
+#' @param lognormal Logical value indicating if the \emph{sgp_sde} represents
+#' a gaussian process or a lognormal process. If the \emph{sgp_sde} is a drift
+#' estimate it should be set to FALSE, whereas if it is a diffusion estimate it
+#' should be set to TRUE.
+#' @param quantiles Vector with the quantiles that the function should return
+#' to build the confidence intervals.
+#' @param ... Additional parameters (currently unused).
+#' @return A \emph{sde_prediction} with the mean and confidence intervals
+#' of the prediction. Use the \emph{plot} function to plot the estimates.
+#' @rdname predict.sgp_sde
+#' @seealso See \code{\link{sde_vi}} for an example.
 #' @export
-predict.sgp_sde = function(sparseGP, newX, lognormal = FALSE,
-                           quantiles = c(0.05, 0.95)) {
+predict.sgp_sde = function(object, newX, lognormal = FALSE,
+                           quantiles = c(0.05, 0.95), ...) {
+  sparseGP = object
   if (length(quantiles) < 2) {
     stop("length of quantiles should be > 2")
   }
