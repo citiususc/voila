@@ -114,5 +114,5 @@ function may be found at reference [1].
 This example is discussed in detail in the paper:
 
 > [1] García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with 
-Sparse Gaussian Processes** _(under review)_.
+Sparse Gaussian Processes** _(under review)_,  [preprint](https://arxiv.org/abs/1704.04375).
 
