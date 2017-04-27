@@ -4,8 +4,8 @@
 \alias{simulate_sde}
 \title{Simulate Langevin Equations}
 \usage{
-simulate_sde(driftExpression, diffExpression, samplingPeriod, tsLength, xinit,
-  trueParameter = list())
+simulate_sde(driftExpression, diffExpression, samplingPeriod, tsLength,
+  stateVariable = "x", xinit, trueParameter = list())
 }
 \arguments{
 \item{driftExpression, diffExpression}{A string/\emph{expression} specifying
@@ -14,6 +14,9 @@ the drift and diffusion terms}
 \item{samplingPeriod}{The sampling period of the resulting time series}
 
 \item{tsLength}{The length of the resulting time series}
+
+\item{stateVariable}{Vector of names of the variables used in the drift and
+diffusion equations.}
 
 \item{xinit}{Initial value for the resulting time series}
 

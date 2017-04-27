@@ -5,6 +5,8 @@
 #' the drift and diffusion terms
 #' @param samplingPeriod The sampling period of the resulting time series
 #' @param tsLength The length of the resulting time series
+#' @param stateVariable Vector of names of the variables used in the drift and
+#' diffusion equations.
 #' @param xinit Initial value for the resulting time series
 #' @param trueParameter A list containing the true parameters of the drift and
 #' diffusion expressions (in the case that there are some unknown values).
@@ -17,17 +19,24 @@
 #'         main = "Ornstein-Uhlenbeck process")
 #' @importFrom yuima setModel simulate setSampling get.zoo.data
 simulate_sde = function(driftExpression, diffExpression,
-                        samplingPeriod, tsLength, xinit,
+                        samplingPeriod, tsLength,
+                        stateVariable = 'x',
+                        xinit,
                         trueParameter = list()) {
   model = suppressWarnings(setModel(drift = driftExpression,
-                                    diffusion = diffExpression))
+                                    diffusion = diffExpression,
+                                    state.variable = stateVariable))
+  if (missing(xinit) && length(stateVariable) > 1) {
+    xinit = rnorm(length(stateVariable))
+  }
   X = suppressWarnings(simulate(model,
-                                xinit =  xinit,
+                                xinit = xinit,
                                 sampling = setSampling(delta = samplingPeriod,
                                                        n = tsLength),
                                 true.parameter = trueParameter)
   )
-  as.matrix(get.zoo.data(X)[[1]], ncol = 1)
+  # transform the list into a matrix
+  sapply(get.zoo.data(X), function(x) x)
 }
 
 # f and g should be vectorized!!
