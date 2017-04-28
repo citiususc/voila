@@ -7,7 +7,7 @@ Maintainer: Constantino Antonio Garcia Martinez <constantinoantonio.garcia@usc.e
 Description: Non-parametric estimation of Langevin equations (also called  Stochastic Differential Equations or SDE) from a densely-observed time series. estimate the drift and diffusion terms by modelling them as gaussian processes  (GPs). To cope with the computational complexity that calculating the posterior distribution of the GPs requires, the GPs are approximated using a small set of function points, the inducing variables. These inducing variables are the result of evaluating the drift and diffusion terms at some strategically located  pseudo-inputs. The pseudo-inputs and the approximate posterior distributions  are learnt using variational inference.
 License: GPL (>= 3)
 LazyLoad: yes
-Depends: R (>= 2.10), yuima, Rcpp(>= 0.12.6), methods
+Depends: R (>= 2.10), yuima (== 1.4.7), Rcpp(>= 0.12.6), methods
 Imports: KernSmooth, doParallel, foreach, zoo
 LinkingTo: Rcpp, RcppArmadillo
 RcppModules: VOILA_KERNELS
