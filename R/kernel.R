@@ -154,10 +154,16 @@ sde_kernel = function(type = c("exp_kernel", "rq_kernel", "sum_exp_kernels",
   junk = create_kernel_pointer(type, parameters, inputDimension, epsilon)
 
   kernelAttr = create_kernel_attributes(type, parameters, inputDimension, epsilon)
+  # TODO: change bounds to vector!!
   kernelAttr$lowerBound = lapply(junk$get_lower_bound(), function(x) x)
   kernelAttr$upperBound = lapply(junk$get_upper_bound(), function(x) x)
-  names(kernelAttr$upperBound) = names(kernelAttr$lowerBound) = names(kernelAttr$hyperparams)
-
+  boundIdx = 1
+  for (paramName in names(kernelAttr$hyperparams)) {
+    hpLen = length(kernelAttr$hyperparams[[paramName]])
+    indices = boundIdx:(boundIdx + hpLen - 1)
+    names(kernelAttr$lowerBound)[indices] = rep(paramName, hpLen)
+    names(kernelAttr$upperBound)[indices] = rep(paramName, hpLen)
+  }
   attr(kernelAttr, 'type') = type
   class(kernelAttr) = 'sde_kernel'
   kernelAttr
@@ -298,7 +304,7 @@ set_hyperparams.sde_kernel = function(kernel, hyperparams) {
   # avoid replication of code using the hyperparameters' checks included in
   # C++ code
   kernelPointer = create_kernel_pointer(kernel)
-  kernelPointer$set_hyperparams(as.numeric(hyperparams))
+  kernelPointer$set_hyperparams(as.numeric(unlist(hyperparams)))
   # if no exception is given the parameters are correct...
   kernel$hyperparams = hyperparams
   kernel
@@ -310,7 +316,7 @@ set_hyperparams.default = function(kernel, hyperparams) {
   if (!is_valid_kernel_pointer(kernel)) {
     stop("A C++ kernel pointer was expected")
   }
-  kernel$set_hyperparams(as.numeric(hyperparams))
+  kernel$set_hyperparams(as.numeric(unlist(hyperparams)))
   kernel
 }
 

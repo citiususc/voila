@@ -1,0 +1,148 @@
+---
+title: "Multivariate Langevin Equations"
+author: "Constantino A. García"
+#output: rmarkdown::html_vignette
+output: html_document
+header-includes: 
+  \usepackage{amsmath}
+vignette: >
+  %\VignetteIndexEntry{multivariate_equations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Let's consider the multivariate Langevin equation for a set of N random variables
+$\mathbf{X} = [X^{(1)}, X^{(2)}, \cdots, X^{(N)}]$:
+
+$$dX^{(i)}_t = f_i(\mathbf{X}_t)d{t}  + \sum_j \sqrt{g_{ij}(\mathbf{X}_t)} d{W^{(j)}_t}.$$ 
+
+Our aim is to compute all the unknown functions $f_i$ and $g_{ij}$ from a single
+observation of the (multivariate) time series $\mathbf{X}_t$. Currently, the general case with a full diffusion matrix $\mathbf{G}$ cannot be solved with `voila`.
+However,  if the matrix is diagonal, we can still apply the estimation method 
+implemented in the package.
+
+### An example
+First of all, we shall simulate a 2D time series. The equations do not intend 
+to have a physical meaning, but the are inspired by the harmonic oscillator 
+equation.
+
+```{r simulation, message=FALSE, fig.align='center', eval=TRUE}
+suppressMessages(library("voila"))
+# simulate a multivariate time series using voila ---------------------
+set.seed(100)
+driftExpression = c("x2", "-2 ^ 2 * x1")
+diffExpression = matrix(c("sqrt(1.25)", 0,
+                          0, "sqrt(0.75 + 0.25 * x1 ^ 2 + 0.5 * x2 ^ 2)"),
+                        2, 2)
+samplingPeriod = 0.001
+x  = simulate_sde(driftExpression,
+             diffExpression,
+             samplingPeriod, 12000,
+             stateVariable = c("x1", "x2"))
+xTime = seq(0, length.out = nrow(x), by = samplingPeriod)
+par(mfrow = c(2,1), mar = c(4,4,0.25,0.25))
+plot(xTime, x[,1], type = 'l', ylab = 'x1', xlab = '')
+plot(xTime, x[,2], type = 'l', ylab = 'x2', xlab = 'time')
+```
+
+Now, we try to estimate the drift and diffusion terms corresponding to
+$X^{(2)}$:
+
+```{r inference,eval=TRUE,cache=TRUE, eval = FALSE}
+## Some parameters for the algorithm
+# the number of inducing points
+noInducingPoints = 10 
+# Our prior belief about the amplitude of the drift and diffusion functions
+uncertainty = 5 
+# A small value to be added to the diagonal of the covariance matrix for
+# stability purposes
+epsilon = 1e-5
+# The dimensionality of the data
+inputDim = ncol(x)
+# we shall infer the equations for the 2nd dimension
+targetIndex = 2
+
+# Selection of the pseudo-inputs. We shall use a quick an dirty way of getting
+# some initial pseudo-inputs: we fit a multivariate normal distribution to the
+# data and then sample the distribution (although the data it is not normally 
+# distributed!!).
+library('mvtnorm')
+xm = rmvnorm(10, colMeans(x), cov(x))
+
+# Create the kernels
+diffParams = select_diffusion_parameters(x, samplingPeriod, priorOnSd = uncertainty,
+                                         responseVariableIndex = targetIndex)
+driftKer = sde_kernel('exp_kernel', list('amplitude' = uncertainty,
+                                         'lengthScales' = c(2,2)),
+                      inputDim, epsilon)
+
+diffKer = sde_kernel('exp_kernel', list('amplitude' = diffParams$kernelAmplitude,
+                                          'lengthScales' = c(0.5,0.5)),
+                     inputDim, epsilon)
+
+# Variational inference. The number of iterations could be increased, but we want
+# a quick result ;) 
+inference = sde_vi(timeSeriesIndex = targetIndex, x, samplingPeriod, xm,
+                   driftKer, diffKer, diffParams$v)
+```
+
+```{r loadData, echo = FALSE}
+# voila ships with the results of the previous snippet to avoid slow
+# installations
+targetIndex = 2
+inference = readRDS("../inst/extdata/multivariate_inference.RDS")
+```
+
+
+Finally we plot the resulting estimates to compare them with the true
+drift and diffusion functions. 
+
+```{r plots,fig.align='center', eval = TRUE}
+library('plot3D')
+# The new input data to generate the predictions
+x1 = seq(quantile(x[,1], 0.05), quantile(x[,1], 0.95), len = 100)
+x2 = seq(quantile(x[,2], 0.05), quantile(x[,2], 0.95), len = 100)
+
+## To generate the 3D-plot we have to generate a grid of function points
+# Drift function evaluation
+zDrift = outer(x1, x2, function(x1, x2) {
+  eval(parse(text = driftExpression[[targetIndex]]),
+       list(x1 = x1, x2 = x2))
+
+})
+zDriftEst = outer(x1, x2, function(x1, x2) predict(inference$drift,
+                                                  matrix(c(x1,x2), ncol = 2),
+                                                  lognormal = FALSE)$mean
+)
+# Diffusion function evaluation
+zDiff = outer(x1, x2, function(x1, x2) {
+  eval(parse(text = diffExpression[targetIndex,targetIndex]),
+       list(x1 = x1, x2 = x2)) ^ 2 + rnorm(length(x1), sd = 0.001)
+
+})
+zDiffEst = outer(x1, x2, function(x1, x2) predict(inference$diff,
+                                                  matrix(c(x1,x2), ncol = 2),
+                                                  lognormal = TRUE)$mean
+)
+# Drift plot
+par(mfrow = c(2,2), mar = c(0.1,0.1,2,0.1))
+col = seq(min(c(zDrift, zDriftEst)), max(c(zDrift, zDriftEst)), len = 25)
+persp3D(x = x1,y = x2, zDrift, phi = 35, #ticktype = 'detailed',
+        zlim = range(c(zDriftEst, zDrift)), breaks = col, colkey = FALSE,
+        main = 'Real Drift', xlab = 'x1', ylab = 'x2',
+        zlab = 'f_2(x1, x2)')
+persp3D(x = x1,y = x2, zDriftEst, phi = 35, #ticktype = 'detailed',
+        zlim = range(c(zDriftEst, zDrift)), breaks = col, colkey = FALSE,
+        main = 'Drift Estimate', xlab = 'x1', ylab = 'x2',
+        zlab = 'f_2(x1, x2)')
+# Diff plot
+col = seq(min(c(zDiff, zDiffEst)), max(c(zDiff, zDiffEst)), len = 25)
+persp3D(x = x1,y = x2, zDiff, phi = 35, #ticktype = 'detailed',
+        zlim = range(c(zDiff, zDiffEst)), breaks = col, colkey = FALSE,
+        main = 'Real Diffusion', xlab = 'x1', ylab = 'x2',
+        zlab = 'g_22(x1, x2)')
+persp3D(x = x1,y = x2, zDiffEst, phi = 35, #ticktype = 'detailed',
+        zlim = range(c(zDiff, zDiffEst)), breaks = col, colkey = FALSE,
+        main = 'Diffusion Estimate', xlab = 'x1', ylab = 'x2', 
+        zlab = 'g_22(x1, x2)')
+```
