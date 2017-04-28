@@ -1,7 +1,8 @@
 ---
 title: "Real example: analysis of DO events"
 author: "Constantino A. García"
-output: rmarkdown::html_vignette
+#output: rmarkdown::html_vignette
+output: html_document
 vignette: >
   %\VignetteIndexEntry{do_events}
   %\VignetteEngine{knitr::rmarkdown}
