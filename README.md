@@ -167,6 +167,7 @@ vignette(vignetteName, package = 'voila')
 Currently, the following vignettes are available:
 
 -   `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) events. The DO events are fast climate changes that occurred during the last glacial period.
+-   `'multivariate_analysis'`: an example of how to use `voila` to study a multi-dimensional time series.
 
 License
 -------
