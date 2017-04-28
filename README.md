@@ -17,11 +17,17 @@ The method is fully described in the paper:
 Installation
 ------------
 
-`voila` is not currently available on [CRAN](http://cran.r-project.org/), but it may be installed directly from github using [devtools](https://github.com/hadley/devtools).
+`voila` is not currently available on [CRAN](http://cran.r-project.org/) but it may be installed from github using [devtools](https://github.com/hadley/devtools). For the moment, `voila` requires the use of [yuima](https://yuima-project.com) version 1.4.7, since the simulation method has changed in the latest version (this issue will be solved in the future). Hence, to install `voila`, [yuima\_1.4.7](https://cran.r-project.org/src/contrib/Archive/yuima/yuima_1.4.7.tar.gz) should be downloaded. The following chunk of code can be used for the download and the installation:
 
 ``` r
+url = 'https://cran.r-project.org/src/contrib/Archive/yuima/yuima_1.4.7.tar.gz'
+download.file(url, 'yuima_1.4.7.tar.gz')
+install.packages('yuima_1.4.7.tar.gz', repos = NULL)
+# install all the remaining dependencies
+install.packages(c('KernSmooth', 'doParallel', 'foreach', 'zoo',
+                  'Rcpp', 'RcppArmadillo'))
 library("devtools")
-install_github("citiususc/voila")
+install_github("citiususc/voila", dependencies = FALSE)
 ```
 
 A quick-example
@@ -32,28 +38,6 @@ from a single realization of an unidimensional [Ornstein–Uhlenbeck](https://en
 
 ``` r
 library("voila", quietly = TRUE, verbose = FALSE)
-#> 
-#> Attaching package: 'zoo'
-#> The following objects are masked from 'package:base':
-#> 
-#>     as.Date, as.Date.numeric
-#> 
-#> Attaching package: 'expm'
-#> The following object is masked from 'package:Matrix':
-#> 
-#>     expm
-#> ############################################
-#> This is YUIMA Project package.
-#> Check for the latest development version at:
-#> http://R-Forge.R-Project.org/projects/yuima
-#> ############################################
-#> 
-#> Attaching package: 'yuima'
-#> The following object is masked from 'package:stats':
-#> 
-#>     simulate
-#> Warning: replacing previous import by 'Rcpp::loadModule' when loading
-#> 'voila'
 # simulate a Ornstein-Uhlenbeck time series using voila ---------------------
 set.seed(1234)
 samplingPeriod = 0.001
@@ -112,18 +96,21 @@ diffKer =  sde_kernel("exp_const_kernel",
 inference = sde_vi(targetIndex, x, samplingPeriod, pseudoInputs, 
                    driftKer, diffKer, diffParams$v)
 #> Starting Variational Inference
-#> Initial Lower Bound L = -59074
-#> Iteration 1| Distributions update | L = 36689.822
-#> Iteration 1| Hyperparameter optimization | L = 36690.319
-#> HP = 0.996 1.49 0.00182 1.5 -2.14 -1.65 -1.18 -0.7 -0.235 0.259 0.718 1.19 1.69 2.16 -0.824 
+#> Iteration 1| Distributions update | L = 36689.451
+#> Iteration 1| Hyperparameter optimization | L = 36689.964
+#> HP = 0.995 1.49 0.00205 1.5 -2.14 -1.65 -1.18 -0.7 -0.236 0.26 0.717 1.19 1.69 2.16 -0.851 
 #> 
-#> Iteration 2| Distributions update | L = 36697.619
-#> Iteration 2| Hyperparameter optimization | L = 36697.639
-#> HP = 0.998 1.51 0.00178 1.51 -2.14 -1.65 -1.18 -0.7 -0.235 0.259 0.718 1.19 1.69 2.16 -0.813 
+#> Iteration 2| Distributions update | L = 36697.556
+#> Iteration 2| Hyperparameter optimization | L = 36697.586
+#> HP = 0.998 1.51 0.00196 1.51 -2.14 -1.65 -1.18 -0.7 -0.236 0.26 0.716 1.19 1.69 2.16 -0.841 
 #> 
-#> Iteration 3| Distributions update | L = 36697.654
-#> Iteration 3| Hyperparameter optimization | L = 36697.654
-#> HP = 0.998 1.51 0.00178 1.51 -2.14 -1.65 -1.18 -0.7 -0.235 0.259 0.718 1.19 1.69 2.16 -0.813 
+#> Iteration 3| Distributions update | L = 36697.601
+#> Iteration 3| Hyperparameter optimization | L = 36697.624
+#> HP = 1 1.53 0.0019 1.52 -2.14 -1.65 -1.18 -0.7 -0.235 0.261 0.716 1.19 1.69 2.16 -0.83 
+#> 
+#> Iteration 4| Distributions update | L = 36697.639
+#> Iteration 4| Hyperparameter optimization | L = 36697.659
+#> HP = 1 1.55 0.00185 1.53 -2.14 -1.65 -1.18 -0.7 -0.235 0.261 0.716 1.19 1.69 2.16 -0.818 
 #> 
 #> CONVERGENCE
 # Analyze results  --------------------------------------------------------
