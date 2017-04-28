@@ -44,7 +44,8 @@ samplingPeriod = 0.001
 drift = "-x"
 diffusion = "sqrt(1.5)"
 x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 20000)
-plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
+plot(seq(0, len = length(x), by = samplingPeriod), x, type = 'l',
+     ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
 ```
 
 <img src="README-figures/ornstein_example-1.png" style="display: block; margin: auto;" />
@@ -96,21 +97,18 @@ diffKer =  sde_kernel("exp_const_kernel",
 inference = sde_vi(targetIndex, x, samplingPeriod, pseudoInputs, 
                    driftKer, diffKer, diffParams$v)
 #> Starting Variational Inference
-#> Iteration 1| Distributions update | L = 36689.451
-#> Iteration 1| Hyperparameter optimization | L = 36689.964
-#> HP = 0.995 1.49 0.00205 1.5 -2.14 -1.65 -1.18 -0.7 -0.236 0.26 0.717 1.19 1.69 2.16 -0.851 
+#> Initial Lower Bound L = -59222.9
+#> Iteration 1| Distributions update | L = 36691.347
+#> Iteration 1| Hyperparameter optimization | L = 36691.906
+#> HP = 0.995 1.49 0.00219 1.5 -2.12 -1.63 -1.17 -0.682 -0.228 0.267 0.721 1.19 1.69 2.16 -0.824 
 #> 
-#> Iteration 2| Distributions update | L = 36697.556
-#> Iteration 2| Hyperparameter optimization | L = 36697.586
-#> HP = 0.998 1.51 0.00196 1.51 -2.14 -1.65 -1.18 -0.7 -0.236 0.26 0.716 1.19 1.69 2.16 -0.841 
+#> Iteration 2| Distributions update | L = 36698.411
+#> Iteration 2| Hyperparameter optimization | L = 36698.439
+#> HP = 0.997 1.51 0.00209 1.51 -2.12 -1.63 -1.17 -0.681 -0.227 0.267 0.721 1.19 1.69 2.16 -0.815 
 #> 
-#> Iteration 3| Distributions update | L = 36697.601
-#> Iteration 3| Hyperparameter optimization | L = 36697.624
-#> HP = 1 1.53 0.0019 1.52 -2.14 -1.65 -1.18 -0.7 -0.235 0.261 0.716 1.19 1.69 2.16 -0.83 
-#> 
-#> Iteration 4| Distributions update | L = 36697.639
-#> Iteration 4| Hyperparameter optimization | L = 36697.659
-#> HP = 1 1.55 0.00185 1.53 -2.14 -1.65 -1.18 -0.7 -0.235 0.261 0.716 1.19 1.69 2.16 -0.818 
+#> Iteration 3| Distributions update | L = 36698.454
+#> Iteration 3| Hyperparameter optimization | L = 36698.475
+#> HP = 1 1.53 0.00205 1.52 -2.12 -1.63 -1.17 -0.682 -0.227 0.267 0.721 1.19 1.69 2.16 -0.806 
 #> 
 #> CONVERGENCE
 # Analyze results  --------------------------------------------------------
@@ -166,8 +164,8 @@ vignette(vignetteName, package = 'voila')
 
 Currently, the following vignettes are available:
 
--   `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) events. The DO events are fast climate changes that occurred during the last glacial period.
--   `'multivariate_analysis'`: an example of how to use `voila` to study a multi-dimensional time series.
+-   `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) events. The DO events are fast climate changes that occurred during the last glacial period. The vignette can be seen [here](https://citiususc.github.io/voila/do_events.html).
+-   `'multivariate_analysis'`: an example of how to use `voila` to study a multi-dimensional time series. The vignette can be seen [here](https://citiususc.github.io/voila/multivariate_analysis.html).
 
 License
 -------

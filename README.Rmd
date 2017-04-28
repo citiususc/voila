@@ -75,7 +75,8 @@ samplingPeriod = 0.001
 drift = "-x"
 diffusion = "sqrt(1.5)"
 x = simulate_sde(drift, diffusion, samplingPeriod = 0.001, tsLength = 20000)
-plot.ts(x, ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
+plot(seq(0, len = length(x), by = samplingPeriod), x, type = 'l',
+     ylab = "x(t)", xlab = "Time t", main = "Ornstein–Uhlenbeck process")
 # Variational Inference  ----------------------------------------------------
 ## Some parameters for the algorithm
 # the number of inducing points
@@ -163,9 +164,11 @@ Currently, the following vignettes are available:
   
   * `'do_events'`: `voila` is applied for studying the Dansgaard-Oeschger (DO) 
   events. The DO events are fast climate changes that occurred during the last 
-  glacial period.
+  glacial period. The vignette can be seen
+  [here](https://citiususc.github.io/voila/do_events.html).
   * `'multivariate_analysis'`: an example of how to use `voila` to study 
-  a multi-dimensional time series.
+  a multi-dimensional time series. The vignette can be seen
+  [here](https://citiususc.github.io/voila/multivariate_analysis.html).
 
 ## License
 This project is licensed under the terms of the [GPL v3 license](LICENSE).
