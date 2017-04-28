@@ -13,6 +13,8 @@ LinkingTo: Rcpp, RcppArmadillo
 RcppModules: VOILA_KERNELS
 RoxygenNote: 5.0.1
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    plot3D,
+    mvtnorm
 VignetteBuilder: knitr
 LazyData: true

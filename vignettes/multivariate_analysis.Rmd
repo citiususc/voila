@@ -6,7 +6,7 @@ output: html_document
 header-includes: 
   \usepackage{amsmath}
 vignette: >
-  %\VignetteIndexEntry{multivariate_equations}
+  %\VignetteIndexEntry{multivariate_analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
