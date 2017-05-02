@@ -17,17 +17,11 @@ The method is fully described in the paper:
 Installation
 ------------
 
-`voila` is not currently available on [CRAN](http://cran.r-project.org/) but it may be installed from github using [devtools](https://github.com/hadley/devtools). For the moment, `voila` requires the use of [yuima](https://yuima-project.com) version 1.4.7, since the simulation method has changed in the latest version (this issue will be solved in the future). Hence, to install `voila`, [yuima\_1.4.7](https://cran.r-project.org/src/contrib/Archive/yuima/yuima_1.4.7.tar.gz) should be downloaded. The following chunk of code can be used for the download and the installation:
+`voila` is not currently available on [CRAN](http://cran.r-project.org/) but it may be installed from github using [devtools](https://github.com/hadley/devtools):
 
 ``` r
-url = 'https://cran.r-project.org/src/contrib/Archive/yuima/yuima_1.4.7.tar.gz'
-download.file(url, 'yuima_1.4.7.tar.gz')
-install.packages('yuima_1.4.7.tar.gz', repos = NULL)
-# install all the remaining dependencies
-install.packages(c('KernSmooth', 'doParallel', 'foreach', 'zoo',
-                  'Rcpp', 'RcppArmadillo'))
 library("devtools")
-install_github("citiususc/voila", dependencies = FALSE)
+install_github("citiususc/voila")
 ```
 
 A quick-example
