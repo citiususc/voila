@@ -11,7 +11,7 @@ Depends: R (>= 2.10), yuima (>= 1.6.4), Rcpp(>= 0.12.6), methods
 Imports: KernSmooth, doParallel, foreach, zoo
 LinkingTo: Rcpp, RcppArmadillo
 RcppModules: VOILA_KERNELS
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown,
     plot3D,
