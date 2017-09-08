@@ -12,7 +12,7 @@ where W represents a [Wiener process](https://en.wikipedia.org/wiki/Wiener_proce
 
 The method is fully described in the paper:
 
-> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes** *(under review)*, [preprint](https://arxiv.org/abs/1704.04375).
+> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G. **Non-parametric Estimation of Stochastic Differential Equations with Sparse Gaussian Processes.** *Phys. Rev. E 96 (2017), 022104*. [Article](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.96.022104), [Preprint](https://arxiv.org/abs/1704.04375).
 
 Installation
 ------------
@@ -32,6 +32,26 @@ from a single realization of an unidimensional [Ornstein–Uhlenbeck](https://en
 
 ``` r
 library("voila", quietly = TRUE, verbose = FALSE)
+#> 
+#> Attaching package: 'zoo'
+#> The following objects are masked from 'package:base':
+#> 
+#>     as.Date, as.Date.numeric
+#> 
+#> Attaching package: 'expm'
+#> The following object is masked from 'package:Matrix':
+#> 
+#>     expm
+#> ############################################
+#> This is YUIMA Project package.
+#> Check for the latest development version at:
+#> http://R-Forge.R-Project.org/projects/yuima
+#> ############################################
+#> 
+#> Attaching package: 'yuima'
+#> The following object is masked from 'package:stats':
+#> 
+#>     simulate
 # simulate a Ornstein-Uhlenbeck time series using voila ---------------------
 set.seed(1234)
 samplingPeriod = 0.001
@@ -93,16 +113,16 @@ inference = sde_vi(targetIndex, x, samplingPeriod, pseudoInputs,
 #> Starting Variational Inference
 #> Initial Lower Bound L = -59222.9
 #> Iteration 1| Distributions update | L = 36691.347
-#> Iteration 1| Hyperparameter optimization | L = 36691.906
+#> Iteration 1| Hyperparameter optimization | L = 36691.904
 #> HP = 0.995 1.49 0.00219 1.5 -2.12 -1.63 -1.17 -0.682 -0.228 0.267 0.721 1.19 1.69 2.16 -0.824 
 #> 
-#> Iteration 2| Distributions update | L = 36698.411
-#> Iteration 2| Hyperparameter optimization | L = 36698.439
-#> HP = 0.997 1.51 0.00209 1.51 -2.12 -1.63 -1.17 -0.681 -0.227 0.267 0.721 1.19 1.69 2.16 -0.815 
+#> Iteration 2| Distributions update | L = 36698.412
+#> Iteration 2| Hyperparameter optimization | L = 36698.44
+#> HP = 0.997 1.51 0.00209 1.51 -2.12 -1.63 -1.17 -0.682 -0.227 0.267 0.721 1.19 1.69 2.16 -0.815 
 #> 
-#> Iteration 3| Distributions update | L = 36698.454
+#> Iteration 3| Distributions update | L = 36698.455
 #> Iteration 3| Hyperparameter optimization | L = 36698.475
-#> HP = 1 1.53 0.00205 1.52 -2.12 -1.63 -1.17 -0.682 -0.227 0.267 0.721 1.19 1.69 2.16 -0.806 
+#> HP = 1 1.53 0.00205 1.52 -2.12 -1.63 -1.17 -0.682 -0.227 0.267 0.721 1.19 1.69 2.16 -0.805 
 #> 
 #> CONVERGENCE
 # Analyze results  --------------------------------------------------------

@@ -37,8 +37,8 @@ distribution and the approximated one.
 
 The method is fully described in the paper:
 
-> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G., (2017). **Non-parametric Estimation of Stochastic Differential Equations with 
-Sparse Gaussian Processes** _(under review)_,  [preprint](https://arxiv.org/abs/1704.04375).
+> García, C.A., Otero, A., Félix, P., Presedo, J. & Márquez D.G. **Non-parametric Estimation of Stochastic Differential Equations with 
+Sparse Gaussian Processes.** _Phys. Rev. E 96 (2017), 022104_. [Article](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.96.022104),  [Preprint](https://arxiv.org/abs/1704.04375).
 
 ## Installation
 `voila` is not currently available on [CRAN](http://cran.r-project.org/) but it
